@@ -1,15 +1,16 @@
-/* Ocamlyacc parser for MicroC */
-
 %{
 open Ast
 %}
 
-%token SEMI LPAREN RPAREN LBRACE RBRACE COMMA PLUS MINUS TIMES DIVIDE ASSIGN
+%token LPAREN RPAREN LBRACE RBRACE
+%token SEMI COMMA ASSIGN
 %token NOT EQ NEQ LT LEQ GT GEQ AND OR
-%token RETURN IF ELSE FOR WHILE INT BOOL FLOAT VOID STRING
-%token <int> LITERAL
-%token <bool> BLIT
-%token <string> ID FLIT SLIT
+%token PLUS MINUS TIMES DIVIDE
+%token RETURN IF ELSE FOR WHILE 
+%token INT BOOL DOUBLE VOID STRING
+%token <int> INT_LIT
+%token <bool> BOOL_LIT
+%token <string> VARIABLE DOUBLE_LIT STRING_LIT
 %token EOF
 
 %start program
@@ -37,7 +38,7 @@ decls:
  | decls fdecl { (fst $1, ($2 :: snd $1)) }
 
 fdecl:
-   typ ID LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+   typ VARIABLE LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
      { { typ = $1;
 	 fname = $2;
 	 formals = List.rev $4;
@@ -49,13 +50,13 @@ formals_opt:
   | formal_list   { $1 }
 
 formal_list:
-    typ ID                   { [($1,$2)]     }
-  | formal_list COMMA typ ID { ($3,$4) :: $1 }
+    typ VARIABLE                   { [($1,$2)]     }
+  | formal_list COMMA typ VARIABLE { ($3,$4) :: $1 }
 
 typ:
     INT   { Int   }
   | BOOL  { Bool  }
-  | FLOAT { Float }
+  | DOUBLE { Double }
   | VOID  { Void  }
   | STRING { String }
 
@@ -64,7 +65,7 @@ vdecl_list:
   | vdecl_list vdecl { $2 :: $1 }
 
 vdecl:
-   typ ID SEMI { ($1, $2) }
+   typ VARIABLE SEMI { ($1, $2) }
 
 stmt_list:
     /* nothing */  { [] }
@@ -85,11 +86,11 @@ expr_opt:
   | expr          { $1 }
 
 expr:
-    LITERAL          { Literal($1)            }
-  | FLIT	           { Fliteral($1)           }
-  | BLIT             { BoolLit($1)            }
-  | SLIT             { StrLit($1)             }
-  | ID               { Id($1)                 }
+    INT_LIT          { IntLit($1)             }
+  | DOUBLE_LIT	     { DoubleLit($1)          }
+  | BOOL_LIT         { BoolLit($1)            }
+  | STRING_LIT       { StrLit($1)             }
+  | VARIABLE         { Var($1)                }
   | expr PLUS   expr { Binop($1, Add,   $3)   }
   | expr MINUS  expr { Binop($1, Sub,   $3)   }
   | expr TIMES  expr { Binop($1, Mult,  $3)   }
@@ -103,9 +104,9 @@ expr:
   | expr AND    expr { Binop($1, And,   $3)   }
   | expr OR     expr { Binop($1, Or,    $3)   }
   | MINUS expr %prec NOT { Unop(Neg, $2)      }
-  | NOT expr         { Unop(Not, $2)          }
-  | ID ASSIGN expr   { Assign($1, $3)         }
-  | ID LPAREN args_opt RPAREN { Call($1, $3)  }
+  | NOT expr          { Unop(Not, $2)          }
+  | VARIABLE ASSIGN expr   { Assign($1, $3)         }
+  | VARIABLE LPAREN args_opt RPAREN { Call($1, $3)  }
   | LPAREN expr RPAREN { $2                   }
 
 args_opt:
