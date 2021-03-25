@@ -5,7 +5,7 @@ type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
 
 type uop = Neg | Not
 
-type typ = Int | Bool | Double | Void | String
+type typ = Int | Bool | Double | Void | String | Constrtyp | Object of string
 
 type bind = typ * string
 
@@ -19,6 +19,10 @@ type expr =
   | Unop of uop * expr
   | Assign of string * expr
   | Call of string * expr list
+  | ObjAccess of string * string
+  | ObjCall of string * string * expr list
+  | ThisAccess of string
+  | ThisCall of string * expr list
   | Noexpr
 
 type stmt =
@@ -37,7 +41,16 @@ type func_decl = {
     body : stmt list;
   }
 
-type program = bind list * func_decl list
+(* one constructor per class decl *)
+type class_decl = { 
+    cname: string;
+    fields: bind list;
+    constructor: func_decl;
+    methods: func_decl list;
+  }
+
+
+type program = bind list * func_decl list * class_decl list
 
 (* Pretty-printing functions *)
 
@@ -72,6 +85,12 @@ let rec string_of_expr = function
   | Assign(v, e) -> v ^ " = " ^ string_of_expr e
   | Call(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
+  | ObjAccess(o, f) -> o ^ "." ^ f
+  | ObjCall(o, m, el) ->
+      o ^ "." ^ m ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
+  | ThisAccess(s) -> "this." ^ s
+  | ThisCall(s, el) ->  
+      "this." ^ s ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
   | Noexpr -> ""
 
 let rec string_of_stmt = function
@@ -93,6 +112,8 @@ let string_of_typ = function
   | Double -> "double"
   | Void -> "void"
   | String -> "string"
+  | Object(s) -> "class " ^ s
+  | Constrtyp -> "constrtyp"
 
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
 
@@ -104,6 +125,17 @@ let string_of_fdecl fdecl =
   String.concat "" (List.map string_of_stmt fdecl.body) ^
   "}\n"
 
-let string_of_program (vars, funcs) =
+let string_of_cdecl cdecl = 
+  "class" ^ cdecl.cname ^ 
+  "\n{\n" ^
+  String.concat "" (List.map string_of_vdecl cdecl.fields) ^
+  string_of_fdecl cdecl.constructor ^
+  String.concat "\n" (List.map string_of_fdecl cdecl.methods) ^
+  "}\n"
+
+
+let string_of_program (vars, funcs, classes) =
   String.concat "" (List.map string_of_vdecl vars) ^ "\n" ^
+  String.concat "\n" (List.map string_of_cdecl classes) ^ "\n" ^
   String.concat "\n" (List.map string_of_fdecl funcs)
+  

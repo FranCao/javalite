@@ -38,12 +38,17 @@ rule token = parse
 | "bool"   { BOOL }
 | "double"  { DOUBLE }
 | "void"   { VOID }
+| "string" { STRING }
 | "true"   { BOOL_LIT(true)  }
 | "false"  { BOOL_LIT(false) }
+| "class"  { CLASS }
+| "this"   { THIS }
+| "constructor" { CONSTRUCTOR }
+| "." {DOT}
 | digits as lxm { INT_LIT(int_of_string lxm) }
 | digits '.'  digit* ( ['e' 'E'] ['+' '-']? digits )? as lxm { DOUBLE_LIT(lxm) }
 | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']*     as lxm { VARIABLE(lxm) }
-| '"'       { STRING_LIT (string (Buffer.create 256) lexbuf) }
+| '"'       { STRING_LIT (stringbuf (Buffer.create 256) lexbuf) }
 | eof { EOF }
 | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
 
@@ -55,9 +60,6 @@ and singcomment = parse
   "\n" { token lexbuf }
 | _    { singcomment lexbuf }
 
-and string buf = parse
+and stringbuf buf = parse
   | '"'    { Buffer.contents buf }
-  | _ as c { Buffer.add_char buf c; string buf lexbuf }
-
-
-(* define something similar to comment *)
+  | _ as c { Buffer.add_char buf c; stringbuf buf lexbuf }

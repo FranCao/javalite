@@ -30,15 +30,18 @@ let translate (globals, functions) =
   let i32_t      = L.i32_type    context
   and i8_t       = L.i8_type     context
   and i1_t       = L.i1_type     context
-  and float_t    = L.double_type context
+  and double_t   = L.double_type context
   and void_t     = L.void_type   context in
+
+  let string_t   = L.pointer_type i8_t in
 
   (* Return the LLVM type for a MicroC type *)
   let ltype_of_typ = function
       A.Int   -> i32_t
     | A.Bool  -> i1_t
-    | A.Double -> float_t
+    | A.Double -> double_t
     | A.Void  -> void_t
+    | A.String -> string_t
   in
 
   (* Create a map of global variables after creating each *)
@@ -113,7 +116,7 @@ let translate (globals, functions) =
     let rec expr builder ((_, e) : sexpr) = match e with
 	SIntLit i  -> L.const_int i32_t i
       | SBoolLit b  -> L.const_int i1_t (if b then 1 else 0)
-      | SDoubleLit l -> L.const_float_of_string float_t l
+      | SDoubleLit l -> L.const_float_of_string double_t l
       | SStrLit s -> L.build_global_stringptr s "str" builder
       | SNoexpr     -> L.const_int i32_t 0
       | SVar s       -> L.build_load (lookup s) s builder
@@ -243,7 +246,7 @@ let translate (globals, functions) =
     (* Add a return if the last block falls off the end *)
     add_terminal builder (match fdecl.styp with
         A.Void -> L.build_ret_void
-      | A.Double -> L.build_ret (L.const_float float_t 0.0)
+      | A.Double -> L.build_ret (L.const_float double_t 0.0)
       | t -> L.build_ret (L.const_int (ltype_of_typ t) 0))
   in
 
