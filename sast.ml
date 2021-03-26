@@ -13,6 +13,10 @@ and sx =
   | SUnop of uop * sexpr
   | SAssign of string * sexpr
   | SCall of string * sexpr list
+  | ObjAccess of string * string
+  | ObjCall of string * string * expr list
+  | ThisAccess of string
+  | ThisCall of string * expr list
   | SNoexpr
 
 type sstmt =

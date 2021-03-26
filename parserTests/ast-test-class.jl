@@ -8,7 +8,7 @@ class Test{
     }
 
     int foo(int b) {
-        print(b);
+        print(b+field);
         return b;
     }
 }
@@ -18,9 +18,10 @@ void bar(string s) {
 }
 
 int main() {
-    class Test t;
+    class Test t; // pointer 
     int f;
-    t = Test(2);
+    t = Test(2); // pointer to class Test typ
     f = t.field;
+    t.foo(3);
     print(f);
 }

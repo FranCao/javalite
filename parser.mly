@@ -49,6 +49,8 @@ constr_decl:
 	 locals = List.rev $6;
 	 body = List.rev $7 } }
 
+
+/* ordering */
 cdecl:
   CLASS VARIABLE LBRACE vdecl_list constr_decl fdecl_list RBRACE
   { { cname = $2;
@@ -138,7 +140,7 @@ expr:
   | VARIABLE LPAREN args_opt RPAREN { Call($1, $3)  }
   | LPAREN expr RPAREN { $2                   }
   /* Class */
-  | VARIABLE DOT VARIABLE { ObjAccess($1, $3) }
+  | VARIABLE DOT VARIABLE { ObjAccess($1, $3) } /*VARIABLE to expr*/
   | VARIABLE DOT VARIABLE LPAREN args_opt RPAREN { ObjCall($1, $3, $5) }
   | THIS DOT VARIABLE { ThisAccess($3) }
   | THIS DOT VARIABLE LPAREN args_opt RPAREN { ThisCall($3, $5) }
