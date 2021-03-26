@@ -2,7 +2,7 @@
 open Ast
 %}
 
-%token LPAREN RPAREN LBRACE RBRACE
+%token LPAREN RPAREN LBRACE RBRACE LBRACK RBRACK
 %token SEMI COMMA ASSIGN
 %token NOT EQ NEQ LT LEQ GT GEQ AND OR
 %token PLUS MINUS TIMES DIVIDE
@@ -59,6 +59,9 @@ cdecl:
 
 obj_typ:
  CLASS VARIABLE { Object($2) }
+
+array_typ:
+  typ LBRACL RBRACK VARIABLE { Array($1, $4) }
 
 fdecl_list:
  /* nothing */ { [] }
@@ -142,6 +145,9 @@ expr:
   | VARIABLE DOT VARIABLE LPAREN args_opt RPAREN { ObjCall($1, $3, $5) }
   | THIS DOT VARIABLE { ThisAccess($3) }
   | THIS DOT VARIABLE LPAREN args_opt RPAREN { ThisCall($3, $5) }
+  /* Arrays */
+  | VARIABLE LBRACK expr RBRACK { ArrayAccess($1, $3)}
+  | LBRACK args_list RBRACK { ArrayLit($2) }
 
 args_opt:
     /* nothing */ { [] }

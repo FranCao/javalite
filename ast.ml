@@ -5,7 +5,7 @@ type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
 
 type uop = Neg | Not
 
-type typ = Int | Bool | Double | Void | String | Constrtyp | Object of string
+type typ = Int | Bool | Double | Void | String | Constrtyp | Object of string | Array of typ
 
 type bind = typ * string
 
@@ -23,6 +23,8 @@ type expr =
   | ObjCall of string * string * expr list
   | ThisAccess of string
   | ThisCall of string * expr list
+  | ArrayAccess of string * expr
+  | ArrayLit of expr list
   | Noexpr
 
 type stmt =
@@ -48,7 +50,6 @@ type class_decl = {
     constructor: func_decl;
     methods: func_decl list;
   }
-
 
 type program = bind list * func_decl list * class_decl list
 
@@ -91,6 +92,9 @@ let rec string_of_expr = function
   | ThisAccess(s) -> "this." ^ s
   | ThisCall(s, el) ->  
       "this." ^ s ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
+  | ArrayAccess (s, el) ->
+      s ^ "[" ^ Strin.concat "" (List.map string_of_expr el) ^ "]"
+  | ArrayLit(e) -> "[" ^ String.concat "" ^ (List.map string_of_expr e) ^ "]"
   | Noexpr -> ""
 
 let rec string_of_stmt = function
@@ -113,6 +117,7 @@ let string_of_typ = function
   | Void -> "void"
   | String -> "string"
   | Object(s) -> "class " ^ s
+  | Array(typ) -> "array " ^ string_of_typ typ
   | Constrtyp -> "constrtyp"
 
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
@@ -132,7 +137,6 @@ let string_of_cdecl cdecl =
   string_of_fdecl cdecl.constructor ^
   String.concat "\n" (List.map string_of_fdecl cdecl.methods) ^
   "}\n"
-
 
 let string_of_program (vars, funcs, classes) =
   String.concat "" (List.map string_of_vdecl vars) ^ "\n" ^
