@@ -61,7 +61,7 @@ obj_typ:
  CLASS VARIABLE { Object($2) }
 
 array_typ:
-  typ LBRACL RBRACK VARIABLE { Array($1, $4) }
+  typ LBRACK RBRACK VARIABLE { Array($1, $4) }
 
 fdecl_list:
  /* nothing */ { [] }
@@ -91,6 +91,7 @@ typ:
   | VOID  { Void  }
   | STRING { String }
   | obj_typ { $1 }
+  | array_typ { $1 }
 
 vdecl_list:
     /* nothing */    { [] }
