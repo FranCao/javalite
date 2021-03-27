@@ -24,7 +24,7 @@ type expr =
   | ObjCall of string * string * expr list
   | ThisAccess of string
   | ThisCall of string * expr list
-  | ArrayAccess of string * expr
+  | ArrayAccess of string * int
   | ArrayLit of expr list
   | Noexpr
 
@@ -94,8 +94,8 @@ let rec string_of_expr = function
   | ThisCall(s, el) ->  
       "this." ^ s ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
   | ArrayAccess (s, el) ->
-      s ^ "[" ^ string_of_expr el ^ "]"
-  | ArrayLit(e) -> "[" ^ String.concat "," (List.map string_of_expr e) ^ "]"
+      s ^ "[" ^ string_of_int el ^ "]"
+  | ArrayLit(e) -> "[" ^ String.concat "," (List.rev_map string_of_expr e) ^ "]"
   | Noexpr -> ""
 
 let rec string_of_stmt = function

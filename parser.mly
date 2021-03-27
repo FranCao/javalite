@@ -147,7 +147,7 @@ expr:
   | THIS DOT VARIABLE { ThisAccess($3) }
   | THIS DOT VARIABLE LPAREN args_opt RPAREN { ThisCall($3, $5) }
   /* Arrays */
-  | VARIABLE LBRACK expr RBRACK { ArrayAccess($1, $3) }
+  | VARIABLE LBRACK INT_LIT RBRACK { ArrayAccess($1, $3) }
   | LBRACK args_list RBRACK { ArrayLit($2) }
 
 args_opt:
