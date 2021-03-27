@@ -1,6 +1,8 @@
 int main() {
+    string s;
+    string[] nums;
     print("hi");
-    //string[] nums; this doesn't work
     nums = ["h", "e", "l", "l", "o"];
+    s = nums[0];
     return 0;
 }

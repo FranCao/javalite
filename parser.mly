@@ -7,7 +7,7 @@ open Ast
 %token NOT EQ NEQ LT LEQ GT GEQ AND OR
 %token PLUS MINUS TIMES DIVIDE
 %token RETURN IF ELSE FOR WHILE 
-%token INT BOOL DOUBLE VOID STRING
+%token INT BOOL DOUBLE VOID STRING INTARR BOOLARR DOUBLEARR STRINGARR
 %token CLASS DOT CONSTRUCTOR THIS
 
 %token <int> INT_LIT
@@ -60,9 +60,6 @@ cdecl:
 obj_typ:
  CLASS VARIABLE { Object($2) }
 
-array_typ:
-  typ LBRACK RBRACK VARIABLE { Array($1, $4) }
-
 fdecl_list:
  /* nothing */ { [] }
  | fdecl_list fdecl { $2 :: $1 }
@@ -90,8 +87,11 @@ typ:
   | DOUBLE { Double }
   | VOID  { Void  }
   | STRING { String }
+  | INTARR { IntArr }
+  | BOOLARR { BoolArr }
+  | DOUBLEARR { DoubleArr }
+  | STRINGARR { StringArr }
   | obj_typ { $1 }
-  | array_typ { $1 }
 
 vdecl_list:
     /* nothing */    { [] }
@@ -147,7 +147,7 @@ expr:
   | THIS DOT VARIABLE { ThisAccess($3) }
   | THIS DOT VARIABLE LPAREN args_opt RPAREN { ThisCall($3, $5) }
   /* Arrays */
-  | VARIABLE LBRACK expr RBRACK { ArrayAccess($1, $3)}
+  | VARIABLE LBRACK expr RBRACK { ArrayAccess($1, $3) }
   | LBRACK args_list RBRACK { ArrayLit($2) }
 
 args_opt:

@@ -5,7 +5,8 @@ type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
 
 type uop = Neg | Not
 
-type typ = Int | Bool | Double | Void | String | Constrtyp | Object of string | Array of typ * string
+type typ = Int | Bool | Double | Void | String | Constrtyp | Object of string |
+            IntArr | BoolArr | DoubleArr | StringArr
 
 type bind = typ * string
 
@@ -94,7 +95,7 @@ let rec string_of_expr = function
       "this." ^ s ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
   | ArrayAccess (s, el) ->
       s ^ "[" ^ string_of_expr el ^ "]"
-  | ArrayLit(e) -> "[" ^ String.concat "" (List.map string_of_expr e) ^ "]"
+  | ArrayLit(e) -> "[" ^ String.concat "," (List.map string_of_expr e) ^ "]"
   | Noexpr -> ""
 
 let rec string_of_stmt = function
@@ -116,8 +117,11 @@ let rec string_of_typ = function
   | Double -> "double"
   | Void -> "void"
   | String -> "string"
+  | IntArr -> "int[]"
+  | BoolArr -> "bool[]"
+  | DoubleArr -> "double[]"
+  | StringArr -> "string[]"
   | Object(s) -> "class " ^ s
-  | Array(typ, s) -> "array " ^ string_of_typ typ ^ " " ^ s
   | Constrtyp -> "constrtyp"
 
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"

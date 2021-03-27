@@ -46,6 +46,10 @@ rule token = parse
 | "class"  { CLASS }
 | "this"   { THIS }
 | "constructor" { CONSTRUCTOR }
+| "int[]"  { INTARR }
+| "bool[]" { BOOLARR }
+| "double[]" { DOUBLEARR }
+| "string[]"  { STRINGARR }
 | "." {DOT}
 | digits as lxm { INT_LIT(int_of_string lxm) }
 | digits '.'  digit* ( ['e' 'E'] ['+' '-']? digits )? as lxm { DOUBLE_LIT(lxm) }
