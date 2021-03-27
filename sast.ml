@@ -13,6 +13,8 @@ and sx =
   | SUnop of uop * sexpr
   | SAssign of string * sexpr
   | SCall of string * sexpr list
+  | SArrayAccess of string * int
+  | SArrayLit of sexpr list
   | SNoexpr
 
 type sstmt =
@@ -49,6 +51,9 @@ let rec string_of_sexpr (t, e) =
   | SAssign(v, e) -> v ^ " = " ^ string_of_sexpr e
   | SCall(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_sexpr el) ^ ")"
+  | SArrayAccess(s, el) ->
+      s ^ "[" ^ string_of_int el ^ "]"
+  | SArrayLit(e) -> "[" ^ String.concat "," (List.rev_map string_of_sexpr e) ^ "]"
   | SNoexpr -> ""
 				  ) ^ ")"				     
 
