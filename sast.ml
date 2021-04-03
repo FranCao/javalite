@@ -13,10 +13,10 @@ and sx =
   | SUnop of uop * sexpr
   | SAssign of string * sexpr
   | SCall of string * sexpr list
-  | ObjAccess of string * string
-  | ObjCall of string * string * expr list
-  | ThisAccess of string
-  | ThisCall of string * expr list
+  | SObjAccess of sexpr * string
+  | SObjCall of sexpr * string * sexpr list
+  | SThisAccess of string
+  | SThisCall of string * sexpr list
   | SNoexpr
 
 type sstmt =
@@ -35,7 +35,15 @@ type sfunc_decl = {
     sbody : sstmt list;
   }
 
-type sprogram = bind list * sfunc_decl list
+(* one constructor per class decl *)
+type sclass_decl = { 
+    scname: string;
+    sfields: bind list;
+    sconstructor: sfunc_decl;
+    smethods: sfunc_decl list;
+  }
+
+type sprogram = bind list * sfunc_decl list * sclass_decl list
 
 (* Pretty-printing functions *)
 
@@ -53,6 +61,12 @@ let rec string_of_sexpr (t, e) =
   | SAssign(v, e) -> v ^ " = " ^ string_of_sexpr e
   | SCall(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_sexpr el) ^ ")"
+  | SObjAccess(o, f) -> string_of_sexpr o ^ "." ^ f
+  | SObjCall(o, m, el) ->
+    string_of_sexpr o ^ "." ^ m ^ "(" ^ String.concat ", " (List.map string_of_sexpr el) ^ ")"
+  | SThisAccess(s) -> "this." ^ s
+  | SThisCall(s, el) ->  
+      "this." ^ s ^ "(" ^ String.concat ", " (List.map string_of_sexpr el) ^ ")"
   | SNoexpr -> ""
 				  ) ^ ")"				     
 
@@ -78,6 +92,15 @@ let string_of_sfdecl fdecl =
   String.concat "" (List.map string_of_sstmt fdecl.sbody) ^
   "}\n"
 
-let string_of_sprogram (vars, funcs) =
+let string_of_scdecl cdecl = 
+  "class" ^ cdecl.scname ^ 
+  "\n{\n" ^
+  String.concat "" (List.map string_of_vdecl cdecl.sfields) ^
+  string_of_sfdecl cdecl.sconstructor ^
+  String.concat "\n" (List.map string_of_sfdecl cdecl.smethods) ^
+  "}\n"
+
+let string_of_sprogram (vars, funcs, classes) =
   String.concat "" (List.map string_of_vdecl vars) ^ "\n" ^
+  String.concat "\n" (List.map string_of_scdecl classes) ^ "\n" ^
   String.concat "\n" (List.map string_of_sfdecl funcs)

@@ -85,9 +85,9 @@ let rec string_of_expr = function
   | Assign(v, e) -> v ^ " = " ^ string_of_expr e
   | Call(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
-  | ObjAccess(o, f) -> o ^ "." ^ f
+  | ObjAccess(o, f) -> string_of_expr o ^ "." ^ f
   | ObjCall(o, m, el) ->
-      o ^ "." ^ m ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
+    string_of_expr o ^ "." ^ m ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
   | ThisAccess(s) -> "this." ^ s
   | ThisCall(s, el) ->  
       "this." ^ s ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"

@@ -9,6 +9,7 @@ open Ast
 %token RETURN IF ELSE FOR WHILE 
 %token INT BOOL DOUBLE VOID STRING
 %token CLASS DOT CONSTRUCTOR THIS
+/* CHAR, fix print function, add string functions*/
 
 %token <int> INT_LIT
 %token <bool> BOOL_LIT
@@ -140,7 +141,7 @@ expr:
   | VARIABLE LPAREN args_opt RPAREN { Call($1, $3)  }
   | LPAREN expr RPAREN { $2                   }
   /* Class */
-  | VARIABLE DOT VARIABLE { ObjAccess($1, $3) } /*VARIABLE to expr*/
+  | VARIABLE DOT VARIABLE { ObjAccess($1, $3) }
   | VARIABLE DOT VARIABLE LPAREN args_opt RPAREN { ObjCall($1, $3, $5) }
   | THIS DOT VARIABLE { ThisAccess($3) }
   | THIS DOT VARIABLE LPAREN args_opt RPAREN { ThisCall($3, $5) }

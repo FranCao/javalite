@@ -10,7 +10,7 @@ module StringMap = Map.Make(String)
 
    Check each global variable, then check each function *)
 
-let check (globals, functions, _) =
+let check (globals, functions, classes) =
 
   (* Verify a list of bindings has no void types or duplicate names *)
   let check_binds (kind : string) (binds : bind list) =
@@ -45,6 +45,7 @@ let check (globals, functions, _) =
 			                         ("printbig", Int) ]
   in
 
+
   (* Add function name to symbol table *)
   let add_func map fd = 
     let built_in_err = "function " ^ fd.fname ^ " may not be defined"
@@ -60,11 +61,68 @@ let check (globals, functions, _) =
   (* Collect all function names into one symbol table *)
   let function_decls = List.fold_left add_func built_in_decls functions
   in
+
+  (* Add class name to symbol table *)
+  let add_class map cd = 
+    let dup_func_err = "may not define class " ^ cd.cname ^ " to be the same name as a function"
+    and dup_err = "duplicate class " ^ cd.cname
+    and make_err er = raise (Failure er)
+    and n = cd.cname (* Name of the class *)
+    in match cd with (* No duplicate class or class with the same name as a function *)
+         _ when StringMap.mem n function_decls -> make_err dup_func_err
+       | _ when StringMap.mem n map -> make_err dup_err  
+       | _ ->  StringMap.add n cd map 
+  in  
+
+  (* Collect all class names into one symbol table *)
+  let class_decls = List.fold_left add_class StringMap.empty classes
+  in
+
+  (* CHECK CONSTRUCTOR FORMALS*)
+  (*INCLUDE CLASS FIELDS IN symbols table*)
+  (* Todo: store all the field names for a class in a map *)
+  (* map key: name of class (cname); value: map{key: field name; value: field value} *)
   
+  (* check whether a field is defined in a class *)
+  let check_field cname field =
+    try let cd = StringMap.find cname class_decls in
+      if List.mem (_, field) cd.fields = true then (_, field)
+      else raise (Failure ("field " ^ field ^ " not found in class " ^ cname))
+    with Not_found -> raise (Failure ("cannot find class " ^ cname))
+  in
+
+  let check_method cname m =
+    try let cd = StringMap.find cname class_decls in
+      let cmethods = cd.methods in
+        let checkedmethods = List.map (fun cm -> if cm.fname = m then 1 else 0) cmethods in
+        try List.mem 1 checkedmethods then ignore m
+        with Not_found -> raise (Failure ("cannot find method " ^ m ^ " in class " ^ cname))
+    with Not_found -> raise (Failure ("cannot find class " ^ cname))
+  in
+
+  (* Add class name as constructor functions *)
+  let add_constr map cd = StringMap.add cd.cname {
+    typ = Constrtyp;
+    fname = cname;
+    formals = cd.constructor.formals;
+    locals = cd.constructor.locals; 
+    body = cd.constructor.body
+  }
+  in
+
+  let function_decls = List.fold_left add_constr function_decls classes
+
+  in
   (* Return a function from our symbol table *)
   let find_func s = 
     try StringMap.find s function_decls
     with Not_found -> raise (Failure ("unrecognized function " ^ s))
+  in
+  
+  (* Return a class from our symbol table *)
+  let find_class s =
+    try StringMap.find s class_decls
+    with Not_found -> raise (Failure ("unrecognized class " ^ s))
   in
 
   let _ = find_func "main" in (* Ensure "main" is defined *)
@@ -146,6 +204,14 @@ let check (globals, functions, _) =
           in 
           let args' = List.map2 check_call fd.formals args
           in (fd.typ, SCall(fname, args'))
+      | ObjAccess(obj, field) as objaccess ->
+          let objtyp = type_of_identifier obj in
+          (check_field objtyp field, SObjAccess(obj, field))
+      (* TODO ObjCall *)
+      | ObjCall(obj, mthd, args) as objcall ->
+          let objtyp = type_of_identifier obj in
+      (* TODO: this call, this access *)
+      
     in
 
     let check_bool_expr e = 
@@ -187,4 +253,10 @@ let check (globals, functions, _) =
 	SBlock(sl) -> sl
       | _ -> raise (Failure ("internal error: block didn't become a block?"))
     }
-  in (globals, List.map check_function functions)
+  in (globals, List.map check_function functions, classes)
+
+  (* classes *)
+in
+    (*let check_class clas =
+    check_binds "fields" clas.fields;
+    check_binds "" *)
