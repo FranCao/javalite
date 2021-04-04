@@ -32,7 +32,7 @@ let check (globals, functions, _) =
   (**** Check functions ****)
 
   (* Collect function declarations for built-in functions: no bodies *)
-  let built_in_decls = 
+  let built_in_print_decls = 
     let add_bind map (name, ty) = StringMap.add name {
       typ = Void;
       fname = name; 
@@ -43,6 +43,15 @@ let check (globals, functions, _) =
 			                         ("printf", Double);
                                ("prints", String);
 			                         ("printbig", Int) ]
+  in
+
+  let built_in_decls = 
+    let add_str_func map (name, ty) = StringMap.add name {
+      typ = String;
+      fname = name; 
+      formals = [(ty, "x")];
+      locals = []; body = [] } map
+    in List.fold_left add_str_func built_in_print_decls [ ("reversestring", String) ]
   in
 
   (* Add function name to symbol table *)
@@ -146,8 +155,6 @@ let check (globals, functions, _) =
           in 
           let args' = List.map2 check_call fd.formals args
           in (fd.typ, SCall(fname, args'))
-      | ArrayAccess(s, el) 
-      | ArrayLit(e) 
     in
 
     let check_bool_expr e = 

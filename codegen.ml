@@ -54,7 +54,7 @@ let translate (globals, functions) =
     List.fold_left global_var StringMap.empty globals in
 
   let printf_t : L.lltype = 
-      L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
+      L.var_arg_function_type i32_t [| string_t |] in
   let printf_func : L.llvalue = 
       L.declare_function "printf" printf_t the_module in
 
@@ -62,6 +62,11 @@ let translate (globals, functions) =
       L.function_type i32_t [| i32_t |] in
   let printbig_func : L.llvalue =
       L.declare_function "printbig" printbig_t the_module in
+
+  let reversestring_t : L.lltype =
+      L.function_type string_t [| string_t |] in
+  let reversestring_func : L.llvalue =
+      L.declare_function "reversestring" reversestring_t the_module in
 
   (* Define each function (arguments and return type) so we can 
      call it even before we've created its body *)
@@ -173,6 +178,8 @@ let translate (globals, functions) =
       | SCall ("printf", [e]) -> 
 	  L.build_call printf_func [| float_format_str ; (expr builder e) |]
 	    "printf" builder
+      | SCall ("reversestring", [e]) ->
+	  L.build_call reversestring_func [| (expr builder e) |] "reversestring" builder
       | SCall (f, args) ->
          let (fdef, fdecl) = StringMap.find f function_decls in
 	 let llargs = List.rev (List.map (expr builder) (List.rev args)) in

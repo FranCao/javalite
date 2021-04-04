@@ -8,7 +8,7 @@ test : all testall.sh
 # to test linking external code
 
 .PHONY : all
-all : javalite.native printbig.o
+all : javalite.native printbig.o reversestring.o
 
 # "make javalite.native" compiles the compiler
 #
@@ -32,6 +32,10 @@ clean :
 
 printbig : printbig.c
 	cc -o printbig -DBUILD_TEST printbig.c
+
+# Testing the "reversestring" example
+reversestring : reversestring.c
+	cc -o reversestring -DBUILD_TEST reversestring.c
 
 # Building the tarball
 
