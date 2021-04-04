@@ -146,6 +146,8 @@ let check (globals, functions, _) =
           in 
           let args' = List.map2 check_call fd.formals args
           in (fd.typ, SCall(fname, args'))
+      | ArrayAccess(s, el) 
+      | ArrayLit(e) 
     in
 
     let check_bool_expr e = 
