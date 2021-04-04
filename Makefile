@@ -8,7 +8,7 @@ test : all testall.sh
 # to test linking external code
 
 .PHONY : all
-all : javalite.native printbig.o
+all : javalite.native printbig.o stringrev.o
 
 # "make javalite.native" compiles the compiler
 #
@@ -32,6 +32,9 @@ clean :
 
 printbig : printbig.c
 	cc -o printbig -DBUILD_TEST printbig.c
+
+stringrev : stringrev.c
+	cc -o stringrev -DBUILD_TEST stringrev.c
 
 # Building the tarball
 
