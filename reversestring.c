@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-char* reversestring(const char *str)
+char* reverse(const char *str)
 {
     size_t len = strlen(str);
     char* revStr = (char*)malloc(len + 1);
@@ -21,7 +21,7 @@ int main()
 {
     char *r;
     char s[] = "HELLO WORLD09AZ";
-    r = reversestring(s);
+    r = reverse(s);
     printf("Reverse of the string: %s\n", r);
 }
 #endif

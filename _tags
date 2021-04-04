@@ -7,3 +7,11 @@ true : warn(+a-4)
 # Instruct ocamlbuild to ignore the "printbig.o" file when it's building
 "printbig.o": not_hygienic
 
+# Instruct ocamlbuild to ignore the "reversestring.o" file when it's building
+"reversestring.o": not_hygienic
+
+# Instruct ocamlbuild to ignore the "stringupper.o" file when it's building
+"stringupper.o": not_hygienic
+
+# Instruct ocamlbuild to ignore the "stringlower.o" file when it's building
+"stringlower.o": not_hygienic
