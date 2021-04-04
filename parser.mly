@@ -2,12 +2,12 @@
 open Ast
 %}
 
-%token LPAREN RPAREN LBRACE RBRACE
+%token LPAREN RPAREN LBRACE RBRACE LBRACK RBRACK
 %token SEMI COMMA ASSIGN
 %token NOT EQ NEQ LT LEQ GT GEQ AND OR
 %token PLUS MINUS TIMES DIVIDE
 %token RETURN IF ELSE FOR WHILE 
-%token INT BOOL DOUBLE VOID STRING
+%token INT BOOL DOUBLE VOID STRING INTARR BOOLARR DOUBLEARR STRINGARR
 %token CLASS DOT CONSTRUCTOR THIS
 
 %token <int> INT_LIT
@@ -87,6 +87,10 @@ typ:
   | DOUBLE { Double }
   | VOID  { Void  }
   | STRING { String }
+  | INTARR { IntArr }
+  | BOOLARR { BoolArr }
+  | DOUBLEARR { DoubleArr }
+  | STRINGARR { StringArr }
   | obj_typ { $1 }
 
 vdecl_list:
@@ -142,6 +146,9 @@ expr:
   | VARIABLE DOT VARIABLE LPAREN args_opt RPAREN { ObjCall($1, $3, $5) }
   | THIS DOT VARIABLE { ThisAccess($3) }
   | THIS DOT VARIABLE LPAREN args_opt RPAREN { ThisCall($3, $5) }
+  /* Arrays */
+  | VARIABLE LBRACK INT_LIT RBRACK { ArrayAccess($1, $3) }
+  | LBRACK args_list RBRACK { ArrayLit($2) }
 
 args_opt:
     /* nothing */ { [] }
