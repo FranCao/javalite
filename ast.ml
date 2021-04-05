@@ -20,10 +20,10 @@ type expr =
   | Unop of uop * expr
   | Assign of string * expr
   | Call of string * expr list
-  | ObjAccess of string * string
+  (* | ObjAccess of string * string
   | ObjCall of string * string * expr list
   | ThisAccess of string
-  | ThisCall of string * expr list
+  | ThisCall of string * expr list *)
   | ArrayAccess of string * int
   | ArrayLit of expr list
   | Noexpr
@@ -79,7 +79,7 @@ let rec string_of_expr = function
   | DoubleLit(l) -> l
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
-  | StrLit(s) -> s
+  | StrLit(s) -> "\"" ^ s ^ "\""
   | Var(s) -> s
   | Binop(e1, o, e2) ->
       string_of_expr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_expr e2
@@ -87,15 +87,15 @@ let rec string_of_expr = function
   | Assign(v, e) -> v ^ " = " ^ string_of_expr e
   | Call(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
-  | ObjAccess(o, f) -> o ^ "." ^ f
+  (* | ObjAccess(o, f) -> o ^ "." ^ f
   | ObjCall(o, m, el) ->
       o ^ "." ^ m ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
   | ThisAccess(s) -> "this." ^ s
   | ThisCall(s, el) ->  
-      "this." ^ s ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
+      "this." ^ s ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")" *)
   | ArrayAccess (s, el) ->
       s ^ "[" ^ string_of_int el ^ "]"
-  | ArrayLit(e) -> "[" ^ String.concat "," (List.rev_map string_of_expr e) ^ "]"
+  | ArrayLit(e) -> "[" ^ String.concat "," (List.map string_of_expr e) ^ "]"
   | Noexpr -> ""
 
 let rec string_of_stmt = function
@@ -134,16 +134,16 @@ let string_of_fdecl fdecl =
   String.concat "" (List.map string_of_stmt fdecl.body) ^
   "}\n"
 
-let string_of_cdecl cdecl = 
+(* let string_of_cdecl cdecl = 
   "class" ^ cdecl.cname ^ 
   "\n{\n" ^
   String.concat "" (List.map string_of_vdecl cdecl.fields) ^
   string_of_fdecl cdecl.constructor ^
   String.concat "\n" (List.map string_of_fdecl cdecl.methods) ^
-  "}\n"
+  "}\n" *)
 
 let string_of_program (vars, funcs, classes) =
   String.concat "" (List.map string_of_vdecl vars) ^ "\n" ^
-  String.concat "\n" (List.map string_of_cdecl classes) ^ "\n" ^
+  (* String.concat "\n" (List.map string_of_cdecl classes) ^ "\n" ^ *)
   String.concat "\n" (List.map string_of_fdecl funcs)
   

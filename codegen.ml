@@ -33,6 +33,7 @@ let translate (globals, functions) =
   and double_t   = L.double_type context
   and void_t     = L.void_type   context in
 
+  (* string type *)
   let string_t   = L.pointer_type i8_t in
 
   (* Return the LLVM type for a MicroC type *)
