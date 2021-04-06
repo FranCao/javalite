@@ -115,7 +115,7 @@ let translate (globals, functions) =
 
     (* Construct code for an expression; return its value *)
     let rec expr builder ((_, e) : sexpr) = match e with
-	SIntLit i  -> L.const_int i32_t i
+	      SIntLit i  -> L.const_int i32_t i
       | SBoolLit b  -> L.const_int i1_t (if b then 1 else 0)
       | SDoubleLit l -> L.const_float_of_string double_t l
       | SStrLit s -> L.build_global_stringptr s "str" builder

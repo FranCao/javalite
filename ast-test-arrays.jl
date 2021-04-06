@@ -5,6 +5,6 @@ int main() {
     int ie;
     arr = ["h", "e", "l", "l", "o"];
     se = arr[2];
-    ie = nums[1];
+    // ie = nums[1];
     return 0;
 }

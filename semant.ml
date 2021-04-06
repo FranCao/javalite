@@ -176,11 +176,15 @@ let check (globals, functions, _) =
           (* determine arr type *)
           else let arr_ty = make_arr_ty fst_ty
         in (arr_ty, SArrayLit(arr_ty_e))
-      | ArrayAccess(v, i) as arrayacess ->
+      | ArrayAccess(v, e) as arrayacess ->
+          (* check if type of e is an in *)
+          let (t, e') = expr e in
+          if t != Int then raise (Failure (string_of_expr e ^ " is not of int type"))
+          else
           (* check if variable is array type *)
           let v_ty = type_of_identifier v in
           let e_ty = is_arr_ty (v, v_ty)
-        in (e_ty, SArrayAccess(v, i))
+        in (e_ty, SArrayAccess(v, (t, e')))
 
     in
 
