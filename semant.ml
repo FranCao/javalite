@@ -10,7 +10,7 @@ module StringMap = Map.Make(String)
 
    Check each global variable, then check each function *)
 
-let check (globals, functions, _) =
+let check (globals, functions) =
 
   (* Verify a list of bindings has no void types or duplicate names *)
   let check_binds (kind : string) (binds : bind list) =
@@ -108,6 +108,7 @@ let check (globals, functions, _) =
       | Bool -> BoolArr
       | Double -> DoubleArr
       | String -> StringArr
+      | _ -> raise (Failure "invalid type for array.")
     in
 
     (* check if of array type, return element type*)
@@ -178,7 +179,7 @@ let check (globals, functions, _) =
         (* check if types of expr are consistent *)
           let ty_inconsistent_err = "inconsistent types in array " ^ string_of_expr arraylit in
           let fst_e = List.hd el in
-          let (fst_ty, fst_e) = expr fst_e in
+          let (fst_ty, _) = expr fst_e in
           let (arr_ty_len, arr_ty_e) = List.fold_left (fun (t, l) e -> 
             let (et, e') = expr e in
             if et = fst_ty then (t+1, (et, e')::l) else (t, (et, e')::l)) (0,[]) el
@@ -188,9 +189,9 @@ let check (globals, functions, _) =
           else let arr_ty = make_arr_ty fst_ty
         in (arr_ty, SArrayLit(arr_ty_e))
       | ArrayAccess(v, e) as arrayacess ->
-          (* check if type of e is an in *)
+          (* check if type of e is an int *)
           let (t, e') = expr e in
-          if t != Int then raise (Failure (string_of_expr e ^ " is not of int type"))
+          if t != Int then raise (Failure (string_of_expr e ^ " is not of int type in " ^ string_of_expr arrayacess))
           else
           (* check if variable is array type *)
           let v_ty = type_of_identifier v in
