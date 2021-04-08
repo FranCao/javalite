@@ -150,11 +150,8 @@ expr:
   | VARIABLE LBRACK INT_LIT RBRACK { ArrayAccess($1, $3) }
   | LBRACK args_list RBRACK { ArrayLit($2) }
   /*Variable Assign*/
-  | INT_LIT VARIABLE ASSIGN expr { Assign($2, $4)         }
-  | DOUBLE_LIT VARIABLE ASSIGN expr { Assign($2, $4)         }
-  | BOOL_LIT VARIABLE ASSIGN expr { Assign($2, $4)         }
-  | STRING_LIT VARIABLE ASSIGN expr { Assign($2, $4)         }
-  
+  | typ VARIABLE ASSIGN expr { Assign($2, $4)         }
+
 args_opt:
     /* nothing */ { [] }
   | args_list  { List.rev $1 }
