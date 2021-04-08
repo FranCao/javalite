@@ -7,7 +7,8 @@ open Ast
 %token NOT EQ NEQ LT LEQ GT GEQ AND OR
 %token PLUS MINUS TIMES DIVIDE
 %token RETURN IF ELSE FOR WHILE 
-%token INT BOOL DOUBLE VOID STRING INTARR BOOLARR DOUBLEARR STRINGARR
+%token INT BOOL DOUBLE VOID STRING 
+%token ARRAY
 
 %token <int> INT_LIT
 %token <bool> BOOL_LIT
@@ -61,10 +62,7 @@ typ:
   | DOUBLE { Double }
   | VOID  { Void  }
   | STRING { String }
-  | INTARR { IntArr }
-  | BOOLARR { BoolArr }
-  | DOUBLEARR { DoubleArr }
-  | STRINGARR { StringArr }
+  | typ ARRAY { Arr($1) }
 
 vdecl_list:
     /* nothing */    { [] }
