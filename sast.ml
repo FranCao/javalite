@@ -13,7 +13,7 @@ and sx =
   | SUnop of uop * sexpr
   | SAssign of string * sexpr
   | SCall of string * sexpr list
-  | SArrayAccess of string * int
+  | SArrayAccess of string * sexpr
   | SArrayLit of sexpr list
   | SNoexpr
 
@@ -43,7 +43,7 @@ let rec string_of_sexpr (t, e) =
   | SBoolLit(true) -> "true"
   | SBoolLit(false) -> "false"
   | SDoubleLit(l) -> l
-  | SStrLit(s) -> s
+  | SStrLit(s) -> "\"" ^ s ^ "\""
   | SVar(s) -> s
   | SBinop(e1, o, e2) ->
       string_of_sexpr e1 ^ " " ^ string_of_op o ^ " " ^ string_of_sexpr e2
@@ -51,9 +51,9 @@ let rec string_of_sexpr (t, e) =
   | SAssign(v, e) -> v ^ " = " ^ string_of_sexpr e
   | SCall(f, el) ->
       f ^ "(" ^ String.concat ", " (List.map string_of_sexpr el) ^ ")"
-  | SArrayAccess(s, el) ->
-      s ^ "[" ^ string_of_int el ^ "]"
-  | SArrayLit(e) -> "[" ^ String.concat "," (List.rev_map string_of_sexpr e) ^ "]"
+  | SArrayAccess(s, e) ->
+      s ^ "[" ^ string_of_sexpr e ^ "]"
+  | SArrayLit(e) -> "[" ^ String.concat "," (List.map string_of_sexpr e) ^ "]"
   | SNoexpr -> ""
 				  ) ^ ")"				     
 

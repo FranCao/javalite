@@ -102,6 +102,23 @@ let check (globals, functions, _) =
       with Not_found -> raise (Failure ("undeclared identifier " ^ s))
     in
 
+    (* convert array type *)
+    let make_arr_ty = function
+        Int -> IntArr
+      | Bool -> BoolArr
+      | Double -> DoubleArr
+      | String -> StringArr
+    in
+
+    (* check if of array type, return element type*)
+    let is_arr_ty (v, ty) = match ty with 
+        IntArr -> Int
+      | BoolArr -> Bool
+      | DoubleArr -> Double
+      | StringArr -> String
+      | _ -> raise (Failure ("cannot access an element in variable " ^ v ^ " of type " ^ string_of_typ ty))
+    in
+
     (* Return a semantically-checked expression, i.e., with a type *)
     let rec expr = function
         IntLit  l -> (Int, SIntLit l)
@@ -157,6 +174,29 @@ let check (globals, functions, _) =
           in 
           let args' = List.map2 check_call fd.formals args
           in (fd.typ, SCall(fname, args'))
+      | ArrayLit(el) as arraylit ->
+        (* check if types of expr are consistent *)
+          let ty_inconsistent_err = "inconsistent types in array " ^ string_of_expr arraylit in
+          let fst_e = List.hd el in
+          let (fst_ty, fst_e) = expr fst_e in
+          let (arr_ty_len, arr_ty_e) = List.fold_left (fun (t, l) e -> 
+            let (et, e') = expr e in
+            if et = fst_ty then (t+1, (et, e')::l) else (t, (et, e')::l)) (0,[]) el
+          in if arr_ty_len != List.length el 
+            then raise (Failure ty_inconsistent_err)
+          (* determine arr type *)
+          else let arr_ty = make_arr_ty fst_ty
+        in (arr_ty, SArrayLit(arr_ty_e))
+      | ArrayAccess(v, e) as arrayacess ->
+          (* check if type of e is an in *)
+          let (t, e') = expr e in
+          if t != Int then raise (Failure (string_of_expr e ^ " is not of int type"))
+          else
+          (* check if variable is array type *)
+          let v_ty = type_of_identifier v in
+          let e_ty = is_arr_ty (v, v_ty)
+        in (e_ty, SArrayAccess(v, (t, e')))
+
     in
 
     let check_bool_expr e = 

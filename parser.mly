@@ -141,14 +141,14 @@ expr:
   | VARIABLE ASSIGN expr   { Assign($1, $3)         }
   | VARIABLE LPAREN args_opt RPAREN { Call($1, $3)  }
   | LPAREN expr RPAREN { $2                   }
-  /* Class */
+  /* Class 
   | VARIABLE DOT VARIABLE { ObjAccess($1, $3) }
   | VARIABLE DOT VARIABLE LPAREN args_opt RPAREN { ObjCall($1, $3, $5) }
   | THIS DOT VARIABLE { ThisAccess($3) }
-  | THIS DOT VARIABLE LPAREN args_opt RPAREN { ThisCall($3, $5) }
+  | THIS DOT VARIABLE LPAREN args_opt RPAREN { ThisCall($3, $5) }*/
   /* Arrays */
-  | VARIABLE LBRACK INT_LIT RBRACK { ArrayAccess($1, $3) }
-  | LBRACK args_list RBRACK { ArrayLit($2) }
+  | VARIABLE LBRACK expr RBRACK { ArrayAccess($1, $3) }
+  | LBRACK args_list RBRACK { ArrayLit(List.rev $2) }
 
 args_opt:
     /* nothing */ { [] }
