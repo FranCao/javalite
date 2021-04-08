@@ -41,8 +41,7 @@ let check (globals, functions, _) =
     in List.fold_left add_bind StringMap.empty [ ("print", Int);
 			                         ("printb", Bool);
 			                         ("printf", Double);
-                               ("prints", String);
-			                         ("printbig", Int) ]
+                               ("prints", String)]
   in
 
   let built_in_decls = 

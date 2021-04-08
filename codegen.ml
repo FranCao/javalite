@@ -59,11 +59,6 @@ let translate (globals, functions) =
   let printf_func : L.llvalue = 
       L.declare_function "printf" printf_t the_module in
 
-  let printbig_t : L.lltype =
-      L.function_type i32_t [| i32_t |] in
-  let printbig_func : L.llvalue =
-      L.declare_function "printbig" printbig_t the_module in
-
   let reversestring_t : L.lltype =
       L.function_type string_t [| string_t |] in
   let reversestring_func : L.llvalue =
@@ -184,8 +179,6 @@ let translate (globals, functions) =
       | SCall ("prints", [e]) ->
       L.build_call printf_func [| str_format_str ; (expr builder e) |]
 	    "printf" builder
-      | SCall ("printbig", [e]) ->
-	  L.build_call printbig_func [| (expr builder e) |] "printbig" builder
       | SCall ("printf", [e]) -> 
 	  L.build_call printf_func [| float_format_str ; (expr builder e) |]
 	    "printf" builder
