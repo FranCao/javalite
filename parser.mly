@@ -8,7 +8,6 @@ open Ast
 %token PLUS MINUS TIMES DIVIDE
 %token RETURN IF ELSE FOR WHILE 
 %token INT BOOL DOUBLE VOID STRING INTARR BOOLARR DOUBLEARR STRINGARR
-%token CLASS DOT CONSTRUCTOR THIS
 
 %token <int> INT_LIT
 %token <bool> BOOL_LIT
@@ -35,34 +34,9 @@ program:
   decls EOF { $1 }
 
 decls:
-   /* nothing */ { ([], [], []) }
- | decls vdecl { let (vdecl, fdecl, cdecl) = $1 in ($2::vdecl, fdecl, cdecl) }
- | decls fdecl { let (vdecl, fdecl, cdecl) = $1 in (vdecl, $2::fdecl, cdecl) }
- | decls cdecl { let (vdecl, fdecl, cdecl) = $1 in (vdecl, fdecl, $2::cdecl) }
-
-
-constr_decl:
-  CONSTRUCTOR LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
-  { { typ = Constrtyp;
-	 fname = "constructor";
-	 formals = List.rev $3;
-	 locals = List.rev $6;
-	 body = List.rev $7 } }
-
-cdecl:
-  CLASS VARIABLE LBRACE vdecl_list constr_decl fdecl_list RBRACE
-  { { cname = $2;
-    fields = List.rev $4;
-    constructor = $5;
-    methods = List.rev $6;
-  } }
-
-obj_typ:
- CLASS VARIABLE { Object($2) }
-
-fdecl_list:
- /* nothing */ { [] }
- | fdecl_list fdecl { $2 :: $1 }
+   /* nothing */ { ([], [])               }
+ | decls vdecl { (($2 :: fst $1), snd $1) }
+ | decls fdecl { (fst $1, ($2 :: snd $1)) }
 
 
 fdecl:
@@ -91,7 +65,6 @@ typ:
   | BOOLARR { BoolArr }
   | DOUBLEARR { DoubleArr }
   | STRINGARR { StringArr }
-  | obj_typ { $1 }
 
 vdecl_list:
     /* nothing */    { [] }
@@ -141,11 +114,6 @@ expr:
   | VARIABLE ASSIGN expr   { Assign($1, $3)         }
   | VARIABLE LPAREN args_opt RPAREN { Call($1, $3)  }
   | LPAREN expr RPAREN { $2                   }
-  /* Class 
-  | VARIABLE DOT VARIABLE { ObjAccess($1, $3) }
-  | VARIABLE DOT VARIABLE LPAREN args_opt RPAREN { ObjCall($1, $3, $5) }
-  | THIS DOT VARIABLE { ThisAccess($3) }
-  | THIS DOT VARIABLE LPAREN args_opt RPAREN { ThisCall($3, $5) }*/
   /* Arrays */
   | VARIABLE LBRACK expr RBRACK { ArrayAccess($1, $3) }
   | LBRACK args_list RBRACK { ArrayLit(List.rev $2) }
