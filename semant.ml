@@ -52,9 +52,17 @@ let check (globals, functions) =
       locals = []; body = [] } map
     in List.fold_left add_str_func built_in_print_decls [ ("reverse", String);
                                 ("upper", String);
-                                ("lower", String);
-                                ("substring", String) ]
+                                ("lower", String); ]
   in
+
+  let built_in_decls =
+    StringMap.add "substring" {
+      typ = String;
+      fname = "substring";
+      formals = [(String, "str"); (Int, "from"); (Int, "to")];
+      locals = [];
+      body = [] } built_in_decls
+   in
 
   (* Add function name to symbol table *)
   let add_func map fd = 

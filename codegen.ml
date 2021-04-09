@@ -43,6 +43,14 @@ let translate (globals, functions) =
     | A.Double -> double_t
     | A.Void  -> void_t
     | A.String -> string_t
+    | _        -> raise (Failure "Unmatched LLVM type in ltype_of_typ")
+
+  (* todo print *)
+  and find_type = function
+    | SIntLit _      -> A.Int
+    | SBoolLit _     -> A.Int
+    | SDoubleLit _   -> A.Double
+    | SStrLit _      -> A.String
   in
 
   (* Create a map of global variables after creating each *)
@@ -98,6 +106,17 @@ let translate (globals, functions) =
     let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder
     and float_format_str = L.build_global_stringptr "%g\n" "fmt" builder
     and str_format_str = L.build_global_stringptr "%s\n" "fmt" builder
+    in
+
+    (* Find the type of the input *)
+    let find_str_typ typ =
+      match typ with
+      | i32_t     -> int_format_str
+      | i8_t     -> int_format_str
+      | i1_t     -> int_format_str
+      | double_t  -> float_format_str
+      | string_t  -> str_format_str
+      | _         -> raise (Failure "Invalid type")
     in
 
     (* Construct the function's "locals": formal arguments and locally
@@ -178,15 +197,23 @@ let translate (globals, functions) =
 	    A.Neg when t = A.Double -> L.build_fneg 
 	  | A.Neg                  -> L.build_neg
           | A.Not                  -> L.build_not) e' "tmp" builder
+
+      (* | SCall ("print", [e]) | SCall ("printb", [e]) ->
+	  L.build_call printf_func [| (find_type ) ; (expr builder e) |]
+	    "printf" builder *)
+
       | SCall ("print", [e]) | SCall ("printb", [e]) ->
-	  L.build_call printf_func [| int_format_str ; (expr builder e) |]
+        (* let e_type = find_type e in *)
+	      L.build_call printf_func [| int_format_str ; (expr builder e) |]
 	    "printf" builder
+
       | SCall ("prints", [e]) ->
       L.build_call printf_func [| str_format_str ; (expr builder e) |]
 	    "printf" builder
       | SCall ("printf", [e]) -> 
 	  L.build_call printf_func [| float_format_str ; (expr builder e) |]
 	    "printf" builder
+      
       | SCall ("reverse", [e]) ->
 	  L.build_call reversestring_func [| (expr builder e) |] "reverse" builder
       | SCall ("upper", [e]) ->
@@ -194,7 +221,8 @@ let translate (globals, functions) =
       | SCall ("lower", [e]) ->
       L.build_call stringlower_func [| (expr builder e) |] "lower" builder
       | SCall ("substring", [e;s1;s2]) ->
-      L.build_call stringsubstring_func [| str_format_str ; (expr builder e ; expr builder s1 ; expr builder s2) |] "substring" builder
+      L.build_call stringsubstring_func [| (expr builder e) ; (expr builder s1) ; (expr builder s2) |] "substring" builder
+
       | SCall (f, args) ->
          let (fdef, fdecl) = StringMap.find f function_decls in
 	 let llargs = List.rev (List.map (expr builder) (List.rev args)) in
@@ -202,6 +230,8 @@ let translate (globals, functions) =
                         A.Void -> ""
                       | _ -> f ^ "_result") in
          L.build_call fdef (Array.of_list llargs) result builder
+         | SArrayAccess _   -> raise (Failure "SArrayAccess not implemented")
+         | SArrayLit _      -> raise (Failure "SArrayLit not implemented")
     in
     
     (* LLVM insists each basic block end with exactly one "terminator" 

@@ -14,6 +14,6 @@ int main()
 
     r = substring(t,0,10);
     prints(r);
-   /* r = substring(t,4,6);
-    prints(r); */
+    r = substring(t,4,6);
+    prints(r);
 }
