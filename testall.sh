@@ -94,7 +94,7 @@ Check() {
     generatedfiles="$generatedfiles ${basename}.ll ${basename}.s ${basename}.exe ${basename}.out" &&
     Run "$JAVALITE" "$1" ">" "${basename}.ll" &&
     Run "$LLC" "-relocation-model=pic" "${basename}.ll" ">" "${basename}.s" &&
-    Run "$CC" "-o" "${basename}.exe" "${basename}.s" "reversestring.o" "stringupper.o" "stringlower.o" &&
+    Run "$CC" "-o" "${basename}.exe" "${basename}.s" "reversestring.o" "stringupper.o" "stringlower.o" "stringsubstring.o" &&
     Run "./${basename}.exe" > "${basename}.out" &&
     Compare ${basename}.out ${reffile}.out ${basename}.diff
 
@@ -183,6 +183,13 @@ if [ ! -f stringlower.o ]
 then
     echo "Could not find stringlower.o"
     echo "Try \"make stringlower.o\""
+    exit 1
+fi
+
+if [ ! -f stringsubstring.o ]
+then
+    echo "Could not find stringsubstring.o"
+    echo "Try \"make stringsubstring.o\""
     exit 1
 fi
 

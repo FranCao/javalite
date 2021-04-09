@@ -52,7 +52,8 @@ let check (globals, functions) =
       locals = []; body = [] } map
     in List.fold_left add_str_func built_in_print_decls [ ("reverse", String);
                                 ("upper", String);
-                                ("lower", String) ]
+                                ("lower", String);
+                                ("substring", String) ]
   in
 
   (* Add function name to symbol table *)

@@ -8,7 +8,7 @@ test : all testall.sh
 # to test linking external code
 
 .PHONY : all
-all : javalite.native reversestring.o stringupper.o stringlower.o
+all : javalite.native reversestring.o stringupper.o stringlower.o stringsubstring.o
 
 # "make javalite.native" compiles the compiler
 #
@@ -39,6 +39,10 @@ stringupper : stringupper.c
 # Testing the "stringlower" example
 stringlower : stringlower.c
 	cc -o stringlower -DBUILD_TEST stringlower.c
+
+# Testing the "stringsubstring" example
+stringlower : stringsubstring.c
+	cc -o stringsubstring -DBUILD_TEST stringsubstring.c
 
 # Building the tarball
 

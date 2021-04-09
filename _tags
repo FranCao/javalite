@@ -12,3 +12,6 @@ true : warn(+a-4)
 
 # Instruct ocamlbuild to ignore the "stringlower.o" file when it's building
 "stringlower.o": not_hygienic
+
+# Instruct ocamlbuild to ignore the "stringsubstring.o" file when it's building
+"stringsubstring.o": not_hygienic
