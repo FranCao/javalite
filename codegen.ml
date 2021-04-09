@@ -75,7 +75,7 @@ let translate (globals, functions) =
       L.declare_function "lower" stringlower_t the_module in
 
   let stringsubstring_t : L.lltype =
-      L.function_type string_t [| string_t;i32_t;i32_t |] in
+      L.function_type string_t [| string_t ; i32_t ; i32_t |] in
   let stringsubstring_func : L.llvalue =
       L.declare_function "substring" stringsubstring_t the_module in
 
@@ -193,8 +193,8 @@ let translate (globals, functions) =
       L.build_call stringupper_func [| (expr builder e) |] "upper" builder
       | SCall ("lower", [e]) ->
       L.build_call stringlower_func [| (expr builder e) |] "lower" builder
-      | SCall ("substring", [e]) ->
-      L.build_call stringsubstring_func [| (expr builder e) |] "substring" builder
+      | SCall ("substring", [e;s1;s2]) ->
+      L.build_call stringsubstring_func [| str_format_str ; (expr builder e ; expr builder s1 ; expr builder s2) |] "substring" builder
       | SCall (f, args) ->
          let (fdef, fdecl) = StringMap.find f function_decls in
 	 let llargs = List.rev (List.map (expr builder) (List.rev args)) in
