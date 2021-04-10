@@ -35,27 +35,8 @@ program:
   decls EOF { $1 }
 
 decls:
-   /* nothing */ { ([], [], []) }
- | decls vdecl { let (vdecl, fdecl, cdecl) = $1 in ($2::vdecl, fdecl, cdecl) }
- | decls fdecl { let (vdecl, fdecl, cdecl) = $1 in (vdecl, $2::fdecl, cdecl) }
- | decls cdecl { let (vdecl, fdecl, cdecl) = $1 in (vdecl, fdecl, $2::cdecl) }
-
-
-constr_decl:
-  CONSTRUCTOR LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
-  { { typ = Constrtyp;
-	 fname = "constructor";
-	 formals = List.rev $3;
-	 locals = List.rev $6;
-	 body = List.rev $7 } }
-
-cdecl:
-  CLASS VARIABLE LBRACE vdecl_list constr_decl fdecl_list RBRACE
-  { { cname = $2;
-    fields = List.rev $4;
-    constructor = $5;
-    methods = List.rev $6;
-  } }
+   /* nothing */ { ( [] ) }
+ | decls fdecl { let (fdecl) = $1 in ($2::fdecl) }
 
 obj_typ:
  CLASS VARIABLE { Object($2) }
@@ -66,12 +47,11 @@ fdecl_list:
 
 
 fdecl:
-   typ VARIABLE LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+   typ VARIABLE LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE
      { { typ = $1;
 	 fname = $2;
 	 formals = List.rev $4;
-	 locals = List.rev $7;
-	 body = List.rev $8 } }
+	 body = List.rev $7 } }
 
 formals_opt:
     /* nothing */ { [] }
