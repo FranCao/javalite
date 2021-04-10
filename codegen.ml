@@ -189,7 +189,7 @@ let translate (globals, functions) =
     let add_terminal builder instr =
       match L.block_terminator (L.insertion_block builder) with
 	Some _ -> ()
-      | None -> ignore (instr builder) 
+      | None -> ignore (instr builder) in
 	
     (* Build the code for the given statement; return the builder for
        the statement's successor (i.e., the next instruction will be built
