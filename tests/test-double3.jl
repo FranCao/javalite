@@ -1,17 +1,17 @@
 void testdouble(double a, double b)
 {
-  printf(a + b);
-  printf(a - b);
-  printf(a * b);
-  printf(a / b);
-  printb(a == b);
-  printb(a == a);
-  printb(a != b);
-  printb(a != a);
-  printb(a > b);
-  printb(a >= b);
-  printb(a < b);
-  printb(a <= b);
+  print(a + b);
+  print(a - b);
+  print(a * b);
+  print(a / b);
+  print(a == b);
+  print(a == a);
+  print(a != b);
+  print(a != a);
+  print(a > b);
+  print(a >= b);
+  print(a < b);
+  print(a <= b);
 }
 
 int main()

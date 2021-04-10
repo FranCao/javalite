@@ -38,19 +38,12 @@ let translate (globals, functions) =
 
   (* Return the LLVM type for a MicroC type *)
   let ltype_of_typ = function
-      A.Int   -> i32_t
-    | A.Bool  -> i1_t
+      A.Int    -> i32_t
+    | A.Bool   -> i1_t
     | A.Double -> double_t
-    | A.Void  -> void_t
+    | A.Void   -> void_t
     | A.String -> string_t
     | _        -> raise (Failure "Unmatched LLVM type in ltype_of_typ")
-
-  (* todo print *)
-  and find_type = function
-    | SIntLit _      -> A.Int
-    | SBoolLit _     -> A.Int
-    | SDoubleLit _   -> A.Double
-    | SStrLit _      -> A.String
   in
 
   (* Create a map of global variables after creating each *)
@@ -61,7 +54,14 @@ let translate (globals, functions) =
         | _ -> L.const_int (ltype_of_typ t) 0
       in StringMap.add n (L.define_global n init the_module) m in
     List.fold_left global_var StringMap.empty globals in
-
+  
+  (* Create a map for the type of the global variables *)
+  let global_ty_vars = 
+    let add_ty_var m (t, n) =
+      StringMap.add n t m in
+    List.fold_left add_ty_var StringMap.empty globals in
+  
+  (* Import modules for our built-in functions and print *)
   let printf_t : L.lltype = 
       L.var_arg_function_type i32_t [| string_t |] in
   let printf_func : L.llvalue = 
@@ -109,13 +109,11 @@ let translate (globals, functions) =
     in
 
     (* Find the type of the input *)
-    let find_str_typ typ =
-      match typ with
-      | i32_t     -> int_format_str
-      | i8_t     -> int_format_str
-      | i1_t     -> int_format_str
-      | double_t  -> float_format_str
-      | string_t  -> str_format_str
+    let find_str_typ = function
+        A.Int     -> int_format_str
+      | A.Bool    -> int_format_str 
+      | A.Double  -> float_format_str 
+      | A.String  -> str_format_str 
       | _         -> raise (Failure "Invalid type")
     in
 
@@ -125,26 +123,70 @@ let translate (globals, functions) =
     let local_vars =
       let add_formal m (t, n) p = 
         L.set_value_name n p;
-	let local = L.build_alloca (ltype_of_typ t) n builder in
+	  let local = L.build_alloca (ltype_of_typ t) n builder in
         ignore (L.build_store p local builder);
-	StringMap.add n local m 
+	  StringMap.add n local m 
 
-      (* Allocate space for any locally declared variables and add the
-       * resulting registers to our map *)
+    (* Allocate space for any locally declared variables and add the
+      * resulting registers to our map *)
       and add_local m (t, n) =
-	let local_var = L.build_alloca (ltype_of_typ t) n builder
-	in StringMap.add n local_var m 
+    let local_var = L.build_alloca (ltype_of_typ t) n builder
+    in StringMap.add n local_var m 
       in
 
       let formals = List.fold_left2 add_formal StringMap.empty fdecl.sformals
           (Array.to_list (L.params the_function)) in
       List.fold_left add_local formals fdecl.slocals 
     in
+    
+    (* Remember local variables type in the local_ty map *)
+    (* let local_ty_vars =
+      let formal_map =
+        let add_formal_ty m (t, n) =
+          StringMap.add n t m in
+          List.fold_left add_formal_ty StringMap.empty fdecl.sformals
+    in
+
+    let add_local_ty m (t, n) =
+      StringMap.add n t m in
+      List.fold_left add_local_ty formal_map fdecl.sformals
+    in        
+
+    let lookup_typ n = try StringMap.find n local_ty_vars
+                    with Not_found -> try StringMap.find n global_ty_vars
+                                        with Not_found -> raise (Failure ("not found: " ^ n))
+    in *)
 
     (* Return the value for a variable or formal argument.
        Check local names first, then global names *)
     let lookup n = try StringMap.find n local_vars
                    with Not_found -> StringMap.find n global_vars
+    in
+
+    let match_typ ty = match ty with
+    | i32_t    -> A.Int
+    | string_t -> A.String
+    | i8_t  -> A.Int
+    | i1_t  -> A.Int
+    | double_t -> A.Double
+
+    in
+    let rec find_type = function
+      | SIntLit _     -> A.Int
+      | SBoolLit _     -> A.Int
+      | SDoubleLit _   -> A.Double
+      | SStrLit _      -> A.String 
+      | SBinop((_, e_x), _, _) -> find_type e_x
+      | SUnop(_, (_, e_x)) -> find_type e_x
+      | SNoexpr        -> raise (Failure "Unmatched NoExpr")
+      | SCall(f, _) -> let (_, fdecl) = StringMap.find f function_decls in 
+                            (match fdecl.styp with
+                              A.Void -> raise (Failure "Cannot print void")
+                              | _     -> fdecl.styp)
+      (* | SVar v        -> match_typ (L.type_of (L.build_load (lookup v) v builder))  *)
+      | SVar v        -> match_typ (L.type_of (lookup v)) 
+      (* | SAssign(v, _)        -> SVar(v) *)
+      | SAssign(v, _)        -> find_type (SVar(v))     
     in
 
     (* Construct code for an expression; return its value *)
@@ -181,7 +223,7 @@ let translate (globals, functions) =
 	    A.Add     -> L.build_add
 	  | A.Sub     -> L.build_sub
 	  | A.Mult    -> L.build_mul
-          | A.Div     -> L.build_sdiv
+    | A.Div     -> L.build_sdiv
 	  | A.And     -> L.build_and
 	  | A.Or      -> L.build_or
 	  | A.Equal   -> L.build_icmp L.Icmp.Eq
@@ -196,15 +238,16 @@ let translate (globals, functions) =
 	  (match op with
 	    A.Neg when t = A.Double -> L.build_fneg 
 	  | A.Neg                  -> L.build_neg
-          | A.Not                  -> L.build_not) e' "tmp" builder
+    | A.Not                  -> L.build_not) e' "tmp" builder
 
       (* | SCall ("print", [e]) | SCall ("printb", [e]) ->
 	  L.build_call printf_func [| (find_type ) ; (expr builder e) |]
 	    "printf" builder *)
 
       | SCall ("print", [e]) | SCall ("printb", [e]) ->
-        (* let e_type = find_type e in *)
-	      L.build_call printf_func [| int_format_str ; (expr builder e) |]
+        let (_, e_x) = e in
+        let e_type = find_type e_x in
+	      L.build_call printf_func [| (find_str_typ e_type) ; (expr builder e) |]
 	    "printf" builder
 
       | SCall ("prints", [e]) ->
@@ -230,8 +273,8 @@ let translate (globals, functions) =
                         A.Void -> ""
                       | _ -> f ^ "_result") in
          L.build_call fdef (Array.of_list llargs) result builder
-         | SArrayAccess _   -> raise (Failure "SArrayAccess not implemented")
-         | SArrayLit _      -> raise (Failure "SArrayLit not implemented")
+      | SArrayAccess _   -> raise (Failure "SArrayAccess not implemented")
+      | SArrayLit _      -> raise (Failure "SArrayLit not implemented")
     in
     
     (* LLVM insists each basic block end with exactly one "terminator" 

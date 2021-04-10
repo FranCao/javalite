@@ -28,6 +28,11 @@ clean :
 	ocamlbuild -clean
 	rm -rf testall.log ocamlllvm *.diff
 
+.PHONY : cleanup
+cleanup :
+	ocamlbuild -clean
+	rm -rf testall.log ocamlllvm *.diff *.exe *.ll *.s
+
 # Testing the "reversestring" example
 reversestring : reversestring.c
 	cc -o reversestring -DBUILD_TEST reversestring.c
@@ -41,7 +46,7 @@ stringlower : stringlower.c
 	cc -o stringlower -DBUILD_TEST stringlower.c
 
 # Testing the "stringsubstring" example
-stringlower : stringsubstring.c
+stringsubstring : stringsubstring.c
 	cc -o stringsubstring -DBUILD_TEST stringsubstring.c
 
 # Building the tarball

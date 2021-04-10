@@ -2,5 +2,5 @@
 
 int main()
 {
-  prints("Today is Friday!! :D");
+  print("Today is Friday!! :D");
 }

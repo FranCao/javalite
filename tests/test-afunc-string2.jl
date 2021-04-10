@@ -5,5 +5,5 @@ int main()
     s = "Foo Foo Doo Bar";
     prints(s);
     u = upper(s);
-    prints(u);
+    print(u);
 }

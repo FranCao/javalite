@@ -3,9 +3,9 @@ int main()
     string s;
     string r;
     s = "Hello World";
-    prints(s);
+    print(s);
     r = reverse(s);
-    prints(r);
+    print(r);
     r = reverse(r);
-    prints(r);
+    print(r);
 }
