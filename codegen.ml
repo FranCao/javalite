@@ -19,7 +19,7 @@ open Sast
 module StringMap = Map.Make(String)
 
 (* translate : Sast.program -> Llvm.module *)
-let translate (globals, functions) =
+let translate (globals,functions) =
   let context    = L.global_context () in
   
   (* Create the LLVM compilation module into which
@@ -109,7 +109,7 @@ let translate (globals, functions) =
     (* Return the value for a variable or formal argument.
        Check local names first, then global names *)
     let lookup n = try StringMap.find n local_vars
-                   with Not_found -> StringMap.find n global_vars
+                   with Not_found -> StringMap.find n StringMap.empty
     in
 
     (* Construct code for an expression; return its value *)
