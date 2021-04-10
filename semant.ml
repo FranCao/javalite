@@ -36,7 +36,7 @@ let check (globals, functions) =
     let add_bind map name = StringMap.add name {
       typ = Void;
       fname = name; 
-      formals = [(None, "x")];
+      formals = [(Any, "x")];
       locals = []; body = [] } map
     in List.fold_left add_bind StringMap.empty [ "print"; "printb"; "printf"; "prints" ]
   in
@@ -93,7 +93,7 @@ let check (globals, functions) =
     (* Raise an exception if the given rvalue type cannot be assigned to
        the given lvalue type *)
     let check_assign lvaluet rvaluet err =
-      if lvaluet = None then rvaluet else
+      if lvaluet = Any then rvaluet else
        if lvaluet = rvaluet then lvaluet else raise (Failure err)
     in   
 

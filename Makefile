@@ -31,7 +31,7 @@ clean :
 .PHONY : cleanup
 cleanup :
 	ocamlbuild -clean
-	rm -rf testall.log ocamlllvm *.diff *.exe *.ll *.s
+	rm -rf testall.log ocamlllvm *.diff *.exe *.ll *.s *.out
 
 # Testing the "reversestring" example
 reversestring : reversestring.c

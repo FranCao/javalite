@@ -10,7 +10,7 @@ int main()
     r = substring(s,1,5);
     print(r);
     r = substring(s,4,7);
-    prints(r);
+    print(r);
 
     r = substring(t,0,10);
     print(r);

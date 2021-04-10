@@ -55,12 +55,6 @@ let translate (globals, functions) =
       in StringMap.add n (L.define_global n init the_module) m in
     List.fold_left global_var StringMap.empty globals in
   
-  (* Create a map for the type of the global variables *)
-  let global_ty_vars = 
-    let add_ty_var m (t, n) =
-      StringMap.add n t m in
-    List.fold_left add_ty_var StringMap.empty globals in
-  
   (* Import modules for our built-in functions and print *)
   let printf_t : L.lltype = 
       L.var_arg_function_type i32_t [| string_t |] in
@@ -139,54 +133,49 @@ let translate (globals, functions) =
       List.fold_left add_local formals fdecl.slocals 
     in
     
-    (* Remember local variables type in the local_ty map *)
-    (* let local_ty_vars =
-      let formal_map =
-        let add_formal_ty m (t, n) =
-          StringMap.add n t m in
-          List.fold_left add_formal_ty StringMap.empty fdecl.sformals
-    in
-
-    let add_local_ty m (t, n) =
-      StringMap.add n t m in
-      List.fold_left add_local_ty formal_map fdecl.sformals
-    in        
-
-    let lookup_typ n = try StringMap.find n local_ty_vars
-                    with Not_found -> try StringMap.find n global_ty_vars
-                                        with Not_found -> raise (Failure ("not found: " ^ n))
-    in *)
-
     (* Return the value for a variable or formal argument.
        Check local names first, then global names *)
     let lookup n = try StringMap.find n local_vars
                    with Not_found -> StringMap.find n global_vars
     in
 
-    let match_typ ty = match ty with
-    | i32_t    -> A.Int
-    | string_t -> A.String
-    | i8_t  -> A.Int
-    | i1_t  -> A.Int
-    | double_t -> A.Double
+    let i32_t_pt = L.string_of_lltype i32_t in
+    let i1_t_pt = L.string_of_lltype i1_t in
+    let  double_t_pt = L.string_of_lltype double_t in
+    let string_t_pt = L.string_of_lltype string_t in
 
-    in
+    let match_typ t = 
+      let t_pt = L.string_of_lltype t in
+      if t_pt = string_t_pt then A.String else
+        if t_pt = double_t_pt then A.Double else
+          if t_pt = i32_t_pt then A.Int else
+            if t_pt = i1_t_pt then A.Int else
+              raise (Failure ("cannot match type: " ^ t_pt)) in
+
+    let is_arith = function
+        A.Add     -> true
+      | A.Sub     -> true
+      | A.Mult    -> true
+      | A.Div     -> true
+      | _         -> false in
+
     let rec find_type = function
       | SIntLit _     -> A.Int
       | SBoolLit _     -> A.Int
       | SDoubleLit _   -> A.Double
       | SStrLit _      -> A.String 
-      | SBinop((_, e_x), _, _) -> find_type e_x
+      | SBinop((_, e_x), op, _) -> if (is_arith op) = true then find_type e_x
+                                    else A.Int
       | SUnop(_, (_, e_x)) -> find_type e_x
       | SNoexpr        -> raise (Failure "Unmatched NoExpr")
       | SCall(f, _) -> let (_, fdecl) = StringMap.find f function_decls in 
                             (match fdecl.styp with
                               A.Void -> raise (Failure "Cannot print void")
                               | _     -> fdecl.styp)
-      (* | SVar v        -> match_typ (L.type_of (L.build_load (lookup v) v builder))  *)
-      | SVar v        -> match_typ (L.type_of (lookup v)) 
-      (* | SAssign(v, _)        -> SVar(v) *)
-      | SAssign(v, _)        -> find_type (SVar(v))     
+      | SVar v        -> match_typ (L.element_type (L.type_of (lookup v)))
+      | SAssign(v, _)        -> find_type (SVar(v))
+      | SArrayAccess _   -> raise (Failure "SArrayAccess not implemented")
+      | SArrayLit _      -> raise (Failure "SArrayLit not implemented")
     in
 
     (* Construct code for an expression; return its value *)
@@ -240,21 +229,10 @@ let translate (globals, functions) =
 	  | A.Neg                  -> L.build_neg
     | A.Not                  -> L.build_not) e' "tmp" builder
 
-      (* | SCall ("print", [e]) | SCall ("printb", [e]) ->
-	  L.build_call printf_func [| (find_type ) ; (expr builder e) |]
-	    "printf" builder *)
-
       | SCall ("print", [e]) | SCall ("printb", [e]) ->
         let (_, e_x) = e in
         let e_type = find_type e_x in
 	      L.build_call printf_func [| (find_str_typ e_type) ; (expr builder e) |]
-	    "printf" builder
-
-      | SCall ("prints", [e]) ->
-      L.build_call printf_func [| str_format_str ; (expr builder e) |]
-	    "printf" builder
-      | SCall ("printf", [e]) -> 
-	  L.build_call printf_func [| float_format_str ; (expr builder e) |]
 	    "printf" builder
       
       | SCall ("reverse", [e]) ->
