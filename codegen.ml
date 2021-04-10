@@ -19,7 +19,7 @@ open Sast
 module StringMap = Map.Make(String)
 
 (* translate : Sast.program -> Llvm.module *)
-let translate (functions) =
+let translate (globals, functions) =
   let context    = L.global_context () in
   
   (* Create the LLVM compilation module into which
@@ -103,7 +103,8 @@ let translate (functions) =
       in
 
       let formals = List.fold_left2 add_formal StringMap.empty fdecl.sformals
-          (Array.to_list (L.params the_function)) in
+          (Array.to_list (L.params the_function))
+  in
 
     (* Return the value for a variable or formal argument.
        Check local names first, then global names *)
