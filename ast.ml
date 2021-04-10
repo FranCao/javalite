@@ -5,8 +5,7 @@ type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
 
 type uop = Neg | Not
 
-type typ = Int | Bool | Double | Void | String | Any |
-            IntArr | BoolArr | DoubleArr | StringArr
+type typ = Int | Bool | Double | Void | String | Arr of typ | Any
 
 type bind = typ * string
 
@@ -93,17 +92,14 @@ let rec string_of_stmt = function
       string_of_expr e3  ^ ") " ^ string_of_stmt s
   | While(e, s) -> "while (" ^ string_of_expr e ^ ") " ^ string_of_stmt s
 
-let string_of_typ = function
+let rec string_of_typ = function
     Int -> "int"
   | Bool -> "bool"
   | Double -> "double"
   | Void -> "void"
   | String -> "string"
-  | IntArr -> "int[]"
-  | BoolArr -> "bool[]"
-  | DoubleArr -> "double[]"
-  | StringArr -> "string[]"
   | Any -> "any"
+  | Arr(t) -> string_of_typ t ^ "[]"
 
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
 

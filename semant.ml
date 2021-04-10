@@ -108,21 +108,11 @@ let check (globals, functions) =
       with Not_found -> raise (Failure ("undeclared identifier " ^ s))
     in
 
-    (* convert array type *)
-    let make_arr_ty = function
-        Int -> IntArr
-      | Bool -> BoolArr
-      | Double -> DoubleArr
-      | String -> StringArr
-      | _ -> raise (Failure "invalid type for array.")
-    in
-
     (* check if of array type, return element type*)
     let is_arr_ty (v, ty) = match ty with 
-        IntArr -> Int
-      | BoolArr -> Bool
-      | DoubleArr -> Double
-      | StringArr -> String
+        Arr(_ as t) -> 
+          if t = Void then raise (Failure ("void type array " ^ v ^ " is not allowed")) 
+          else t
       | _ -> raise (Failure ("cannot access an element in variable " ^ v ^ " of type " ^ string_of_typ ty))
     in
 
@@ -192,7 +182,7 @@ let check (globals, functions) =
           in if arr_ty_len != List.length el 
             then raise (Failure ty_inconsistent_err)
           (* determine arr type *)
-          else let arr_ty = make_arr_ty fst_ty
+          else let arr_ty = Arr(fst_ty)
         in (arr_ty, SArrayLit(arr_ty_e))
       | ArrayAccess(v, e) as arrayacess ->
           (* check if type of e is an int *)
