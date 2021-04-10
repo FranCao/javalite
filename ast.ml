@@ -35,6 +35,7 @@ type stmt =
   | If of expr * stmt * stmt
   | For of expr * expr * expr * stmt
   | While of expr * stmt
+  | DecAssn of typ * string * expr
 
 type func_decl = {
     typ : typ;
@@ -44,15 +45,7 @@ type func_decl = {
     body : stmt list;
   }
 
-(* one constructor per class decl *)
-type class_decl = { 
-    cname: string;
-    fields: bind list;
-    constructor: func_decl;
-    methods: func_decl list;
-  }
-
-type program = bind list * func_decl list * class_decl list
+type program = bind list * func_decl list
 
 (* Pretty-printing functions *)
 
@@ -110,6 +103,7 @@ let rec string_of_stmt = function
       "for (" ^ string_of_expr e1  ^ " ; " ^ string_of_expr e2 ^ " ; " ^
       string_of_expr e3  ^ ") " ^ string_of_stmt s
   | While(e, s) -> "while (" ^ string_of_expr e ^ ") " ^ string_of_stmt s
+  | DecAssn (t, v, e) -> string_of_typ t ^ " " ^ id ^ string_of_expr e ^ ";\n"
 
 let rec string_of_typ = function
     Int -> "int"
@@ -124,7 +118,7 @@ let rec string_of_typ = function
   | Object(s) -> "class " ^ s
   | Constrtyp -> "constrtyp"
 
-let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
+let string_of_vdecl (t, id, e) = string_of_typ t ^ " " ^ id  ^ ";\n"
 
 let string_of_fdecl fdecl =
   string_of_typ fdecl.typ ^ " " ^
@@ -134,16 +128,7 @@ let string_of_fdecl fdecl =
   String.concat "" (List.map string_of_stmt fdecl.body) ^
   "}\n"
 
-let string_of_cdecl cdecl = 
-  "class" ^ cdecl.cname ^ 
-  "\n{\n" ^
-  String.concat "" (List.map string_of_vdecl cdecl.fields) ^
-  string_of_fdecl cdecl.constructor ^
-  String.concat "\n" (List.map string_of_fdecl cdecl.methods) ^
-  "}\n"
-
 let string_of_program (vars, funcs, classes) =
   String.concat "" (List.map string_of_vdecl vars) ^ "\n" ^
-  String.concat "\n" (List.map string_of_cdecl classes) ^ "\n" ^
   String.concat "\n" (List.map string_of_fdecl funcs)
   

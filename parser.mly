@@ -93,13 +93,6 @@ typ:
   | STRINGARR { StringArr }
   | obj_typ { $1 }
 
-vdecl_list:
-    /* nothing */    { [] }
-  | vdecl_list vdecl { $2 :: $1 }
-
-vdecl:
-   typ VARIABLE SEMI { ($1, $2) }
-
 stmt_list:
     /* nothing */  { [] }
   | stmt_list stmt { $2 :: $1 }
@@ -113,6 +106,7 @@ stmt:
   | FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt
                                             { For($3, $5, $7, $9)   }
   | WHILE LPAREN expr RPAREN stmt           { While($3, $5)         }
+  | typ VARIABLE ASSIGN expr SEMI           { DecAssn($1, $2, $4) }
 
 expr_opt:
     /* nothing */ { Noexpr }
@@ -149,8 +143,6 @@ expr:
   /* Arrays */
   | VARIABLE LBRACK INT_LIT RBRACK { ArrayAccess($1, $3) }
   | LBRACK args_list RBRACK { ArrayLit($2) }
-  /*Variable Assign*/
-  | typ VARIABLE ASSIGN expr { Assign($2, $4)         }
 
 args_opt:
     /* nothing */ { [] }
