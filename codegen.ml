@@ -141,7 +141,7 @@ let translate (globals, functions) =
 
     let i32_t_pt = L.string_of_lltype i32_t in
     let i1_t_pt = L.string_of_lltype i1_t in
-    let  double_t_pt = L.string_of_lltype double_t in
+    let double_t_pt = L.string_of_lltype double_t in
     let string_t_pt = L.string_of_lltype string_t in
 
     let match_typ t = 
@@ -205,6 +205,16 @@ let translate (globals, functions) =
 	  | A.And | A.Or ->
 	      raise (Failure "internal error: semant should have rejected and/or on float")
 	  ) e1' e2' "tmp" builder
+
+    (* String operations *)
+      (* | SBinop ((A.String,_ ) as e1, op, e2) ->
+	  let e1' = expr builder e1
+	  and e2' = expr builder e2 in
+	  (match op with 
+	    A.Add     -> SStrLit((SStrLit e1) ^ (SStrLit e2))
+    | _         -> raise (Failure "internal error: cannot perform this operation on string")    
+    ) e1' e2' "tmp" builder *)
+
       | SBinop (e1, op, e2) ->
 	  let e1' = expr builder e1
 	  and e2' = expr builder e2 in
@@ -228,13 +238,11 @@ let translate (globals, functions) =
 	    A.Neg when t = A.Double -> L.build_fneg 
 	  | A.Neg                  -> L.build_neg
     | A.Not                  -> L.build_not) e' "tmp" builder
-
-      | SCall ("print", [e]) | SCall ("printb", [e]) ->
+      | SCall ("print", [e]) ->
         let (_, e_x) = e in
         let e_type = find_type e_x in
 	      L.build_call printf_func [| (find_str_typ e_type) ; (expr builder e) |]
 	    "printf" builder
-      
       | SCall ("reverse", [e]) ->
 	  L.build_call reversestring_func [| (expr builder e) |] "reverse" builder
       | SCall ("upper", [e]) ->
