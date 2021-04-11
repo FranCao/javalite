@@ -60,6 +60,12 @@ let translate (globals, functions) =
       L.var_arg_function_type i32_t [| string_t |] in
   let printf_func : L.llvalue = 
       L.declare_function "printf" printf_t the_module in
+  
+  (* testing *)
+  (* let sizeof_t : L.lltype = 
+    L.var_arg_function_type i32_t [| string_t |] in
+  let sizeof_func : L.llvalue = 
+      L.declare_function "sizeof" sizeof_t the_module in *)
 
   let reversestring_t : L.lltype =
       L.function_type string_t [| string_t |] in
@@ -141,7 +147,7 @@ let translate (globals, functions) =
 
     let i32_t_pt = L.string_of_lltype i32_t in
     let i1_t_pt = L.string_of_lltype i1_t in
-    let  double_t_pt = L.string_of_lltype double_t in
+    let double_t_pt = L.string_of_lltype double_t in
     let string_t_pt = L.string_of_lltype string_t in
 
     let match_typ t = 
@@ -205,6 +211,16 @@ let translate (globals, functions) =
 	  | A.And | A.Or ->
 	      raise (Failure "internal error: semant should have rejected and/or on float")
 	  ) e1' e2' "tmp" builder
+
+    (* String operations *)
+      | SBinop ((A.String,_ ) as e1, op, e2) ->
+	  (* let e1' = expr builder e1
+	  and e2' = expr builder e2 in *)
+	  (match op with 
+	    A.Add     -> expr builder (A.String, SStrLit((print_sstring e1) ^ (print_sstring e2)))
+    | _         -> raise (Failure "internal error: cannot perform this operation on string")
+    )
+
       | SBinop (e1, op, e2) ->
 	  let e1' = expr builder e1
 	  and e2' = expr builder e2 in
@@ -228,13 +244,11 @@ let translate (globals, functions) =
 	    A.Neg when t = A.Double -> L.build_fneg 
 	  | A.Neg                  -> L.build_neg
     | A.Not                  -> L.build_not) e' "tmp" builder
-
-      | SCall ("print", [e]) | SCall ("printb", [e]) ->
+      | SCall ("print", [e]) ->
         let (_, e_x) = e in
         let e_type = find_type e_x in
 	      L.build_call printf_func [| (find_str_typ e_type) ; (expr builder e) |]
 	    "printf" builder
-      
       | SCall ("reverse", [e]) ->
 	  L.build_call reversestring_func [| (expr builder e) |] "reverse" builder
       | SCall ("upper", [e]) ->
@@ -243,6 +257,10 @@ let translate (globals, functions) =
       L.build_call stringlower_func [| (expr builder e) |] "lower" builder
       | SCall ("substring", [e;s1;s2]) ->
       L.build_call stringsubstring_func [| (expr builder e) ; (expr builder s1) ; (expr builder s2) |] "substring" builder
+      (* Testing sizeof function *)
+      (* | SCall ("len", [e]) ->
+      L.build_call sizeof_func [| (int_format_str) ; (expr builder e) |]
+	    "sizeof" builder *)
 
       | SCall (f, args) ->
          let (fdef, fdecl) = StringMap.find f function_decls in

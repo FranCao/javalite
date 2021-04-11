@@ -61,6 +61,15 @@ let check (globals, functions) =
       body = [] } built_in_decls
    in
 
+   (* let built_in_decls =
+    StringMap.add "len" {
+      typ = Int;
+      fname = "len";
+      formals = [(String, "str")];
+      locals = [];
+      body = [] } built_in_decls
+   in *)
+
   (* Add function name to symbol table *)
   let add_func map fd = 
     let built_in_err = "function " ^ fd.fname ^ " may not be defined"
@@ -152,6 +161,7 @@ let check (globals, functions) =
           | Less | Leq | Greater | Geq
                      when same && (t1 = Int || t1 = Double) -> Bool
           | And | Or when same && t1 = Bool -> Bool
+          | Add when same && t1 = String -> String
           | _ -> raise (
 	      Failure ("illegal binary operator " ^
                        string_of_typ t1 ^ " " ^ string_of_op op ^ " " ^

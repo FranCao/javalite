@@ -55,7 +55,11 @@ let rec string_of_sexpr (t, e) =
       s ^ "[" ^ string_of_sexpr e ^ "]"
   | SArrayLit(e) -> "[" ^ String.concat "," (List.map string_of_sexpr e) ^ "]"
   | SNoexpr -> ""
-				  ) ^ ")"				     
+				  ) ^ ")"
+
+let print_sstring (_, e) = match e with
+    SStrLit(s) -> s
+  | _ -> raise (Failure "error: only string type allowed")
 
 let rec string_of_sstmt = function
     SBlock(stmts) ->
