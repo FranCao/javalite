@@ -214,8 +214,6 @@ let translate (globals, functions) =
 
     (* String operations *)
       | SBinop ((A.String,_ ) as e1, op, e2) ->
-	  (* let e1' = expr builder e1
-	  and e2' = expr builder e2 in *)
 	  (match op with 
 	    A.Add     -> expr builder (A.String, SStrLit((print_sstring e1) ^ (print_sstring e2)))
     | _         -> raise (Failure "internal error: cannot perform this operation on string")
