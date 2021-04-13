@@ -14,7 +14,7 @@ open Sast
 module StringMap = Map.Make(String)
 
 (* translate : Sast.program -> Llvm.module *)
-let translate (globals, functions) =
+let translate (functions) =
   let context    = L.global_context () in
   
   (* Create the LLVM compilation module into which

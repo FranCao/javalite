@@ -3,6 +3,13 @@
 open Ast
 open Sast
 
+module StringHash = Hashtbl.Make(struct 
+    type t = string
+    let equal x y = x = y 
+    let hash = Hashtbl.hash 
+  end)
+(* Assuming max variables of 100 *)
+let vars = StringHash.create 100
 module StringMap = Map.Make(String)
 
 (* Semantic checking of the AST. Returns an SAST if successful,
@@ -10,7 +17,7 @@ module StringMap = Map.Make(String)
 
    Check each global variable, then check each function *)
 
-let check (globals, functions, _) =
+let check (functions) =
 
   (* Verify a list of bindings has no void types or duplicate names *)
   let check_binds (kind : string) (binds : bind list) =
@@ -27,7 +34,7 @@ let check (globals, functions, _) =
 
   (**** Check global variables ****)
 
-  check_binds "global" globals;
+  (* check_binds "global" globals; *)
 
   (**** Check functions ****)
 
@@ -80,13 +87,19 @@ let check (globals, functions, _) =
     in   
 
     (* Build local symbol table of variables for this function *)
-    let symbols = List.fold_left (fun m (ty, name) -> StringMap.add name ty m)
+    (*
+    let symbols = List.fold_left (fun m (ty, name, value) -> StringMap.add name ty m)
 	                StringMap.empty (func.formals)
+    in *)
+
+    let symbols = List.fold_left (fun m (ty, name, value) -> StringHash.add vars name value)
+                  (* ask about this *)
+	                (* StringMap.empty (func.formals) *)
     in
 
     (* Return a variable from our local symbol table *)
     let type_of_identifier s =
-      try StringMap.find s symbols
+      try StringHash.find vars s
       with Not_found -> raise (Failure ("undeclared identifier " ^ s))
     in
 
@@ -185,4 +198,4 @@ let check (globals, functions, _) =
 	SBlock(sl) -> sl
       | _ -> raise (Failure ("internal error: block didn't become a block?"))
     }
-  in (globals, List.map check_function functions)
+  in (List.map check_function functions)

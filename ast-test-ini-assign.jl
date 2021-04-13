@@ -1,6 +1,5 @@
 int main()
 {
-  int a;
-  a=53;
+  int a = 53;
   print(a);
 }

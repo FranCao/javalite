@@ -44,7 +44,7 @@ type func_decl = {
     body : stmt list;
   }
 
-type program = bind list * func_decl list
+type program = func_decl list
 
 (* Pretty-printing functions *)
 
@@ -115,7 +115,7 @@ let rec string_of_stmt = function
       "for (" ^ string_of_expr e1  ^ " ; " ^ string_of_expr e2 ^ " ; " ^
       string_of_expr e3  ^ ") " ^ string_of_stmt s
   | While(e, s) -> "while (" ^ string_of_expr e ^ ") " ^ string_of_stmt s
-  | DecAssn (t, v, e) -> string_of_typ t ^ " " ^ v ^ string_of_expr e ^ ";\n"
+  | DecAssn (t, v, e) -> string_of_typ t ^ " " ^ v ^ " = " ^ string_of_expr e ^ ";\n"
 
 let string_of_fdecl fdecl =
   string_of_typ fdecl.typ ^ " " ^
@@ -124,6 +124,6 @@ let string_of_fdecl fdecl =
   String.concat "" (List.map string_of_stmt fdecl.body) ^
   "}\n"
 
-let string_of_program (funcs, classes) =
+let string_of_program (funcs) =
   String.concat "\n" (List.map string_of_fdecl funcs)
   
