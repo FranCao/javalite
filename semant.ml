@@ -37,7 +37,7 @@ let check (globals, functions, _) =
       typ = Void;
       fname = name; 
       formals = [(ty, "x")];
-      locals = []; body = [] } map
+      body = [] } map
     in List.fold_left add_bind StringMap.empty [ ("print", Int);
 			                         ("printb", Bool);
 			                         ("printf", Double);
@@ -72,7 +72,6 @@ let check (globals, functions, _) =
   let check_function func =
     (* Make sure no formals or locals are void or duplicates *)
     check_binds "formal" func.formals;
-    check_binds "local" func.locals;
 
     (* Raise an exception if the given rvalue type cannot be assigned to
        the given lvalue type *)
@@ -82,7 +81,7 @@ let check (globals, functions, _) =
 
     (* Build local symbol table of variables for this function *)
     let symbols = List.fold_left (fun m (ty, name) -> StringMap.add name ty m)
-	                StringMap.empty (globals @ func.formals @ func.locals )
+	                StringMap.empty (func.formals)
     in
 
     (* Return a variable from our local symbol table *)
@@ -182,7 +181,6 @@ let check (globals, functions, _) =
     { styp = func.typ;
       sfname = func.fname;
       sformals = func.formals;
-      slocals  = func.locals;
       sbody = match check_stmt (Block func.body) with
 	SBlock(sl) -> sl
       | _ -> raise (Failure ("internal error: block didn't become a block?"))

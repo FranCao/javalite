@@ -1,15 +1,10 @@
 (* Code generation: translate takes a semantically checked AST and
 produces LLVM IR
-
 LLVM tutorial: Make sure to read the OCaml version of the tutorial
-
 http://llvm.org/docs/tutorial/index.html
-
 Detailed documentation on the OCaml LLVM library:
-
 http://llvm.moe/
 http://llvm.moe/ocaml/
-
 *)
 
 module L = Llvm
@@ -19,7 +14,7 @@ open Sast
 module StringMap = Map.Make(String)
 
 (* translate : Sast.program -> Llvm.module *)
-let translate (globals,functions) =
+let translate (globals, functions) =
   let context    = L.global_context () in
   
   (* Create the LLVM compilation module into which
@@ -45,14 +40,6 @@ let translate (globals,functions) =
   in
 
   (* Create a map of global variables after creating each *)
-  (* 
-  let global_vars : L.llvalue StringMap.t =
-    let global_var m (t, n) = 
-      let init = match t with
-          A.Double -> L.const_float (ltype_of_typ t) 0.0
-        | _ -> L.const_int (ltype_of_typ t) 0
-      in StringMap.add n (L.define_global n init the_module) m in
-    List.fold_left global_var StringMap.empty globals in *)
 
   let printf_t : L.lltype = 
       L.var_arg_function_type i32_t [| L.pointer_type i8_t |] in
@@ -103,11 +90,12 @@ let translate (globals,functions) =
       in
 
       let formals = List.fold_left2 add_formal StringMap.empty fdecl.sformals
-          (Array.to_list (L.params the_function))
-  in
+          (Array.to_list (L.params the_function)) in
+      List.fold_left add_local formals fdecl.sformals
+    in
 
     (* Return the value for a variable or formal argument.
-       Check local names first, then global names *)
+       Check local names first*)
     let lookup n = try StringMap.find n local_vars
                    with Not_found -> StringMap.find n StringMap.empty
     in
