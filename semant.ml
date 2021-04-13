@@ -189,6 +189,12 @@ let check (functions) =
             | s :: ss         -> check_stmt s :: check_stmt_list ss
             | []              -> []
           in SBlock(check_stmt_list sl)
+      (* TODO : Need to check that type is same type as e *)
+      | DecAssn (t, var, e) as ex -> 
+          let (rt, e') = expr e in
+          let err = "illegal assignment " ^ string_of_typ lt ^ " = " ^ 
+            string_of_typ rt ^ " in " ^ string_of_expr ex
+          in (check_assign lt rt err, SAssign(var, (rt, e')))
 
     in (* body of check_function *)
     { styp = func.typ;

@@ -11,6 +11,13 @@ module L = Llvm
 module A = Ast
 open Sast 
 
+module StringHash = Hashtbl.Make(struct 
+    type t = string
+    let equal x y = x = y 
+    let hash = Hashtbl.hash 
+  end)
+(* Assuming max variables of 100 *)
+let vars = StringHash.create 100
 module StringMap = Map.Make(String)
 
 (* translate : Sast.program -> Llvm.module *)
