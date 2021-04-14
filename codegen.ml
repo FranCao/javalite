@@ -200,26 +200,31 @@ let translate (globals, functions) =
       | SStrLit s -> L.build_global_stringptr s "str" builder
       | SArrayLit arr   -> 
         (* arr: sexpr list = typ * sx list *)
-        let len = L.const_int i32_t (List.length arr + 1) in
+        let len = L.const_int i32_t (List.length arr) in
         let (fst_t, _) = List.hd arr in 
         let ty = ltype_of_typ (A.Arr fst_t) in
-        let arr_malloc = L.build_array_malloc ty len "init1" builder in
-        let arr_ptr = L.build_pointercast arr_malloc ty "init2" builder in 
-        let _ = L.build_bitcast len ty "init3" builder in
-        let values = List.map (expr builder) arr in
-        let store_e i v = 
-          (let e_ptr = 
-            L.build_gep arr_ptr [| (L.const_int i32_t (i+1)) |] "init4" builder in
-            ignore(L.build_store v e_ptr builder);) 
-        in
-        List.iteri store_e values; arr_ptr
+        (* allocate memory for array *)
+        let arr_alloca = L.build_array_alloca ty len "arr" builder in
+        (* pointer cast *)
+        let arr_ptr = L.build_pointercast arr_alloca ty "arrptr" builder in 
+        (* bitcast *)
+        let _ = L.build_bitcast len ty "arrbitcast" builder in
+        (* store all elements *)
+        let elts = List.map (expr builder) arr in
+        let store_elt ind elt = 
+          let pos = L.const_int i32_t (ind + 1) in
+            let elt_ptr = L.build_gep arr_ptr [| pos |] "arrelt" builder in
+          ignore(L.build_store elt elt_ptr builder)
+        in List.iteri store_elt elts;
+        arr_ptr
       | SArrayAccess (s, e)  -> 
         let ind = expr builder e in
         let (ty, _) = e in
-        let pos = L.build_add ind (L.const_int i32_t 1) "access1" builder in
+        (* increment index by one to get actual ptr position *)
+        let pos = L.build_add ind (L.const_int i32_t 1) "accpos" builder in
         let arr = expr builder (ty, (SVar s)) in
-        let elt = L.build_gep arr [| pos |] "access2" builder in
-        L.build_load elt "access3" builder
+        let elt = L.build_gep arr [| pos |] "acceltptr" builder in
+        L.build_load elt "accelt" builder
       | SNoexpr     -> L.const_int i32_t 0
       | SVar s       -> L.build_load (lookup s) s builder
       | SAssign (s, e) -> let e' = expr builder e in
