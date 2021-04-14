@@ -37,21 +37,29 @@ let translate (globals, functions) =
   let string_t   = L.pointer_type i8_t in
 
   (* Return the LLVM type for a MicroC type *)
-  let ltype_of_typ = function
+  let rec ltype_of_typ = function
       A.Int    -> i32_t
     | A.Bool   -> i1_t
     | A.Double -> double_t
     | A.Void   -> void_t
     | A.String -> string_t
+    | A.Arr ty -> L.pointer_type (ltype_of_typ ty)
     | _        -> raise (Failure "Unmatched LLVM type in ltype_of_typ")
+  in
+
+  (* initialize global var value *)
+  let init_var t = match t with
+    A.Double -> L.const_float (ltype_of_typ t) 0.0
+  | A.String -> L.const_pointer_null (ltype_of_typ t)
+  | A.Arr _ -> L.const_pointer_null (ltype_of_typ t)
+  | _ -> L.const_int (ltype_of_typ t) 0
+
   in
 
   (* Create a map of global variables after creating each *)
   let global_vars : L.llvalue StringMap.t =
     let global_var m (t, n) = 
-      let init = match t with
-          A.Double -> L.const_float (ltype_of_typ t) 0.0
-        | _ -> L.const_int (ltype_of_typ t) 0
+      let init = init_var t
       in StringMap.add n (L.define_global n init the_module) m in
     List.fold_left global_var StringMap.empty globals in
   
@@ -190,6 +198,28 @@ let translate (globals, functions) =
       | SBoolLit b  -> L.const_int i1_t (if b then 1 else 0)
       | SDoubleLit l -> L.const_float_of_string double_t l
       | SStrLit s -> L.build_global_stringptr s "str" builder
+      | SArrayLit arr   -> 
+        (* arr: sexpr list = typ * sx list *)
+        let len = L.const_int i32_t (List.length arr + 1) in
+        let (fst_t, _) = List.hd arr in 
+        let ty = ltype_of_typ (A.Arr fst_t) in
+        let arr_malloc = L.build_array_malloc ty len "init1" builder in
+        let arr_ptr = L.build_pointercast arr_malloc ty "init2" builder in 
+        let _ = L.build_bitcast len ty "init3" builder in
+        let values = List.map (expr builder) arr in
+        let store_e i v = 
+          (let e_ptr = 
+            L.build_gep arr_ptr [| (L.const_int i32_t (i+1)) |] "init4" builder in
+            ignore(L.build_store v e_ptr builder);) 
+        in
+        List.iteri store_e values; arr_ptr
+      | SArrayAccess (s, e)  -> 
+        let ind = expr builder e in
+        let (ty, _) = e in
+        let pos = L.build_add ind (L.const_int i32_t 1) "access1" builder in
+        let arr = expr builder (ty, (SVar s)) in
+        let elt = L.build_gep arr [| pos |] "access2" builder in
+        L.build_load elt "access3" builder
       | SNoexpr     -> L.const_int i32_t 0
       | SVar s       -> L.build_load (lookup s) s builder
       | SAssign (s, e) -> let e' = expr builder e in
@@ -267,8 +297,6 @@ let translate (globals, functions) =
                         A.Void -> ""
                       | _ -> f ^ "_result") in
          L.build_call fdef (Array.of_list llargs) result builder
-      | SArrayAccess _   -> raise (Failure "SArrayAccess not implemented")
-      | SArrayLit _      -> raise (Failure "SArrayLit not implemented")
     in
     
     (* LLVM insists each basic block end with exactly one "terminator" 

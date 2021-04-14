@@ -53,7 +53,7 @@ let rec string_of_sexpr (t, e) =
       f ^ "(" ^ String.concat ", " (List.map string_of_sexpr el) ^ ")"
   | SArrayAccess(s, e) ->
       s ^ "[" ^ string_of_sexpr e ^ "]"
-  | SArrayLit(e) -> "[" ^ String.concat "," (List.map string_of_sexpr e) ^ "]"
+  | SArrayLit(e) -> "[" ^ String.concat "," (List.map string_of_sexpr (List.rev e)) ^ "]"
   | SNoexpr -> ""
 				  ) ^ ")"
 

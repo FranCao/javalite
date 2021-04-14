@@ -76,7 +76,7 @@ let rec string_of_expr = function
       f ^ "(" ^ String.concat ", " (List.map string_of_expr el) ^ ")"
   | ArrayAccess (s, e) ->
       s ^ "[" ^ string_of_expr e ^ "]"
-  | ArrayLit(e) -> "[" ^ String.concat "," (List.map string_of_expr e) ^ "]"
+  | ArrayLit(e) -> "[" ^ String.concat "," (List.map string_of_expr (List.rev e)) ^ "]"
   | Noexpr -> ""
 
 let rec string_of_stmt = function

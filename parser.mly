@@ -114,7 +114,7 @@ expr:
   | LPAREN expr RPAREN { $2                   }
   /* Arrays */
   | VARIABLE LBRACK expr RBRACK { ArrayAccess($1, $3) }
-  | LBRACK args_list RBRACK { ArrayLit(List.rev $2) }
+  | LBRACK args_list RBRACK { ArrayLit($2) }
 
 args_opt:
     /* nothing */ { [] }
