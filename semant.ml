@@ -38,7 +38,7 @@ let check (globals, functions) =
       fname = name; 
       formals = [(Any, "x")];
       locals = []; body = [] } map
-    in List.fold_left add_bind StringMap.empty [ "print"; "printb"; "printf"; "prints" ]
+    in List.fold_left add_bind StringMap.empty [ "print" ]
   in
 
   let built_in_decls = 

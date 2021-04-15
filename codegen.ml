@@ -216,6 +216,11 @@ let translate (globals, functions) =
       | SBinop ((A.String,_ ) as e1, op, e2) ->
 	  (match op with 
 	    A.Add     -> expr builder (A.String, SStrLit((print_sstring e1) ^ (print_sstring e2)))
+    (* | A.Equal   -> expr builder (A.String, SIntLit(compare_sstring (e1,e2))) *)
+    (* | A.Equal   -> if (expr builder (A.Bool,SBoolLit(compare_sstring (e1,e2)))) = true then (L.const_int i32_t 1)
+                    else (L.const_int i32_t 0) *)
+    (* | A.Equal   -> if (expr builder (A.String, SStrLit((print_sstring e1))) && (expr builder (A.String, SStrLit((print_sstring e2)))))= true then (L.const_int i32_t 1)
+                    else (L.const_int i32_t 0) *)
     | _         -> raise (Failure "internal error: cannot perform this operation on string")
     )
 

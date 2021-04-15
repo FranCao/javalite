@@ -61,6 +61,10 @@ let print_sstring (_, e) = match e with
     SStrLit(s) -> s
   | _ -> raise (Failure "error: only string type allowed")
 
+let compare_sstring ((_, e1),(_,e2)) =
+    if SStrLit(e1) = SStrLit(e2) then true
+    else false
+
 let rec string_of_sstmt = function
     SBlock(stmts) ->
       "{\n" ^ String.concat "" (List.map string_of_sstmt stmts) ^ "}\n"

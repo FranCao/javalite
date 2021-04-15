@@ -8,7 +8,7 @@ test : all testall.sh
 # to test linking external code
 
 .PHONY : all
-all : javalite.native reversestring.o stringupper.o stringlower.o stringsubstring.o
+all : javalite.native stringfuncs.o
 
 # "make javalite.native" compiles the compiler
 #
@@ -33,21 +33,9 @@ cleanup :
 	ocamlbuild -clean
 	rm -rf testall.log ocamlllvm *.diff *.exe *.ll *.s *.out
 
-# Testing the "reversestring" example
-reversestring : reversestring.c
-	cc -o reversestring -DBUILD_TEST reversestring.c
-
-# Testing the "stringupper" example
-stringupper : stringupper.c
-	cc -o stringupper -DBUILD_TEST stringupper.c
-
-# Testing the "stringlower" example
-stringlower : stringlower.c
-	cc -o stringlower -DBUILD_TEST stringlower.c
-
-# Testing the "stringsubstring" example
-stringsubstring : stringsubstring.c
-	cc -o stringsubstring -DBUILD_TEST stringsubstring.c
+# Testing the "string" example
+stringfuncs : stringfuncs.c
+	cc -o string -DBUILD_TEST stringfuncs.c
 
 # Building the tarball
 
