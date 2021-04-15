@@ -205,10 +205,8 @@ let translate (globals, functions) =
         let ty = ltype_of_typ (A.Arr fst_t) in
         (* allocate memory for array *)
         let arr_alloca = L.build_array_alloca ty len "arr" builder in
-        (* pointer cast *)
-        let arr_ptr = L.build_pointercast arr_alloca ty "arrptr" builder in 
         (* bitcast *)
-        let _ = L.build_bitcast len ty "arrbitcast" builder in
+        let arr_ptr = L.build_pointercast arr_alloca ty "arrptr" builder in 
         (* store all elements *)
         let elts = List.map (expr builder) arr in
         let store_elt ind elt = 
