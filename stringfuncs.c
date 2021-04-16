@@ -61,3 +61,38 @@ char* upper(const char *str)
     upStr[len] = '\0';
     return upStr;
 }
+
+int indexOf(const char *str, const char find)
+{
+    int i;
+    size_t len = strlen(str);
+
+    for (i = 0; i < len; i++)
+    {
+        if (str[i] == find)
+            return i;
+    }
+
+    return -1;
+}
+
+int len(const char *str)
+{
+    int *l;
+    size_t len = strlen(str);
+
+    // l = (int*)(len);
+    l = (int)(len);
+}
+
+char* concat(const char *str1, const char *str2)
+{
+    size_t len1 = strlen(str1);
+    size_t len2 = strlen(str2);
+    char* both = (char*)malloc(len1 + len2 + 1);
+
+    strcpy(both, str1);
+    strcat(both, str2);
+
+    return both;
+}

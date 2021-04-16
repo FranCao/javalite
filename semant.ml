@@ -61,6 +61,34 @@ let check (globals, functions) =
       body = [] } built_in_decls
    in
 
+   let built_in_decls =
+    StringMap.add "concat" {
+      typ = String;
+      fname = "concat";
+      formals = [(String, "str1"); (String, "str2")];
+      locals = [];
+      body = [] } built_in_decls
+   in
+
+   let built_in_decls =
+    StringMap.add "indexOf" {
+      typ = Int;
+      fname = "indexOf";
+      formals = [(String, "str"); (String, "find")];
+      locals = [];
+      body = [] } built_in_decls
+   in
+
+   let built_in_decls =
+    StringMap.add "len" {
+      typ = Int;
+      fname = "len";
+      formals = [(String, "str")];
+      locals = [];
+      body = [] } built_in_decls
+   in
+
+
    (* let built_in_decls =
     StringMap.add "len" {
       typ = Int;

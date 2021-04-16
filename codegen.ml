@@ -95,6 +95,21 @@ let translate (globals, functions) =
   let stringsubstring_func : L.llvalue =
       L.declare_function "substring" stringsubstring_t the_module in
 
+  let stringindexof_t : L.lltype =
+      L.function_type i32_t [| string_t ; string_t |] in
+  let stringindexof_func : L.llvalue =
+      L.declare_function "indexOf" stringindexof_t the_module in
+
+  let stringlen_t : L.lltype =
+      L.function_type i32_t [| string_t |] in
+  let stringlen_func : L.llvalue =
+      L.declare_function "len" stringlen_t the_module in
+
+  let stringconcat_t : L.lltype =
+      L.function_type string_t [| string_t ; string_t |] in
+  let stringconcat_func : L.llvalue =
+      L.declare_function "concat" stringconcat_t the_module in
+
   (* Define each function (arguments and return type) so we can 
      call it even before we've created its body *)
   let function_decls : (L.llvalue * sfunc_decl) StringMap.t =
@@ -293,6 +308,12 @@ let translate (globals, functions) =
       L.build_call stringlower_func [| (expr builder e) |] "lower" builder
       | SCall ("substring", [e;s1;s2]) ->
       L.build_call stringsubstring_func [| (expr builder e) ; (expr builder s1) ; (expr builder s2) |] "substring" builder
+      | SCall ("indexOf", [e1;e2]) ->
+      L.build_call stringindexof_func [| (expr builder e1) ; (expr builder e2) |] "indexOf" builder
+      | SCall ("len", [e]) ->
+      L.build_call stringlen_func [| (expr builder e) |] "len" builder
+      | SCall ("concat", [e1;e2]) ->
+      L.build_call stringconcat_func [| (expr builder e1) ; (expr builder e2) |] "concat" builder
       (* Testing sizeof function *)
       (* | SCall ("len", [e]) ->
       L.build_call sizeof_func [| (int_format_str) ; (expr builder e) |]
