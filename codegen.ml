@@ -203,7 +203,7 @@ let translate (globals, functions) =
                               | _     -> fdecl.styp)
       | SVar v        -> match_typ (L.element_type (L.type_of (lookup v)))
       | SAssign(v, _)        -> find_type (SVar(v))
-      | SArrayAccess _   -> raise (Failure "SArrayAccess not implemented")
+      | SArrayAccess (s, _)   -> match_typ (L.element_type (L.element_type (L.type_of (lookup s))))
       | SArrayLit _      -> raise (Failure "SArrayLit not implemented")
     in
 
