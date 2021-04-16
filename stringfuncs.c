@@ -62,14 +62,14 @@ char* upper(const char *str)
     return upStr;
 }
 
-int indexOf(const char *str, const char find)
+int indexOf(const char *str, const char *find)
 {
     int i;
     size_t len = strlen(str);
 
     for (i = 0; i < len; i++)
     {
-        if (str[i] == find)
+        if (str[i] == *find)
             return i;
     }
 
@@ -78,7 +78,7 @@ int indexOf(const char *str, const char find)
 
 int len(const char *str)
 {
-    int *l;
+    int l;
     size_t len = strlen(str);
 
     // l = (int*)(len);

@@ -5,6 +5,7 @@ int main()
     string c;
     int si;
     int ti;
+    int sn;
 
     s = "Hello World!!";
     t = "FooFooDooDooBar";
@@ -12,8 +13,11 @@ int main()
     si = indexOf(s,"e");
     print(si);
 
-    ti = indexOf(s,"D");
+    ti = indexOf(t,"D");
     print(ti);
+
+    sn = indexOf(s,"D");
+    print(sn);
 
     c = concat(s,t);
     print(c);
