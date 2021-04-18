@@ -16,6 +16,7 @@ and sx =
   | SArrayAccess of string * sexpr
   | SArrayLit of sexpr list
   | SArrAssign of string * sexpr * sexpr
+  | SObjAccess of string * string
   | SNoexpr
 
 type sstmt =
@@ -34,7 +35,12 @@ type sfunc_decl = {
     sbody : sstmt list;
   }
 
-type sprogram = bind list * sfunc_decl list
+type sclass_decl = {
+  scname : string;
+  sfields : bind list;
+}
+
+type sprogram = bind list * sclass_decl list * sfunc_decl list
 
 (* Pretty-printing functions *)
 
@@ -56,6 +62,7 @@ let rec string_of_sexpr (t, e) =
       s ^ "[" ^ string_of_sexpr e ^ "]"
   | SArrayLit(e) -> "[" ^ String.concat "," (List.map string_of_sexpr (List.rev e)) ^ "]"
   | SArrAssign(s, e1, e2) -> s ^ "[" ^ string_of_sexpr e1 ^ "] = " ^ string_of_sexpr e2
+  | SObjAccess(s1, s2) -> s1 ^ "." ^ s2
   | SNoexpr -> ""
 				  ) ^ ")"
 
@@ -89,6 +96,12 @@ let string_of_sfdecl fdecl =
   String.concat "" (List.map string_of_sstmt fdecl.sbody) ^
   "}\n"
 
-let string_of_sprogram (vars, funcs) =
+let string_of_scdecl cdecl =
+  "class " ^ cdecl.scname ^ " {\n" ^ 
+  String.concat "" (List.map string_of_vdecl cdecl.sfields) ^
+  "}\n"
+
+let string_of_sprogram (vars, classes, funcs) =
   String.concat "" (List.map string_of_vdecl vars) ^ "\n" ^
+  String.concat "\n" (List.map string_of_scdecl classes) ^ "\n" ^
   String.concat "\n" (List.map string_of_sfdecl funcs)

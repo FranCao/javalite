@@ -6,7 +6,7 @@ class square {
 int main() {
     class square sq;
     int s;
-    string n;
+    int n;
     sq = square("fst_sq", 42);
     s = sq.side;
     n = sq.name;
