@@ -15,6 +15,7 @@ and sx =
   | SCall of string * sexpr list
   | SArrayAccess of string * sexpr
   | SArrayLit of sexpr list
+  | SArrAssign of string * sexpr * sexpr
   | SNoexpr
 
 type sstmt =
@@ -54,6 +55,7 @@ let rec string_of_sexpr (t, e) =
   | SArrayAccess(s, e) ->
       s ^ "[" ^ string_of_sexpr e ^ "]"
   | SArrayLit(e) -> "[" ^ String.concat "," (List.map string_of_sexpr (List.rev e)) ^ "]"
+  | SArrAssign(s, e1, e2) -> s ^ "[" ^ string_of_sexpr e1 ^ "] = " ^ string_of_sexpr e2
   | SNoexpr -> ""
 				  ) ^ ")"
 

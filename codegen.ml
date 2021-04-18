@@ -203,8 +203,9 @@ let translate (globals, functions) =
                               | _     -> fdecl.styp)
       | SVar v        -> match_typ (L.element_type (L.type_of (lookup v)))
       | SAssign(v, _)        -> find_type (SVar(v))
-      | SArrayAccess (s, _)   -> match_typ (L.element_type (L.element_type (L.type_of (lookup s))))
+      | SArrayAccess(s, _)   -> match_typ (L.element_type (L.element_type (L.type_of (lookup s))))
       | SArrayLit _      -> raise (Failure "SArrayLit not implemented")
+      | SArrAssign _ -> raise (Failure "SArrAssign not implemented")
     in
 
     (* Construct code for an expression; return its value *)
@@ -238,6 +239,15 @@ let translate (globals, functions) =
         let arr = expr builder (ty, (SVar s)) in
         let elt = L.build_gep arr [| pos |] "acceltptr" builder in
         L.build_load elt "accelt" builder
+      | SArrAssign (s, e1, e2) ->
+        let ind = expr builder e1 in
+        let (ty, _) = e1 in
+        (* increment index by one to get actual ptr position *)
+        let pos = L.build_add ind (L.const_int i32_t 1) "accpos" builder in
+        let arr = expr builder (ty, (SVar s)) in
+        let new_val = expr builder e2 in
+        let elt_ptr = L.build_gep arr [| pos |] "arrelt" builder in
+        L.build_store new_val elt_ptr builder
       | SNoexpr     -> L.const_int i32_t 0
       | SVar s       -> L.build_load (lookup s) s builder
       | SAssign (s, e) -> let e' = expr builder e in

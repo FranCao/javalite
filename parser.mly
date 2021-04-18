@@ -9,6 +9,7 @@ open Ast
 %token RETURN IF ELSE FOR WHILE 
 %token INT BOOL DOUBLE VOID STRING 
 %token ARRAY
+// %token CLASS DOT
 
 %token <int> INT_LIT
 %token <bool> BOOL_LIT
@@ -38,6 +39,17 @@ decls:
    /* nothing */ { ([], [])               }
  | decls vdecl { (($2 :: fst $1), snd $1) }
  | decls fdecl { (fst $1, ($2 :: snd $1)) }
+// decls:
+//    /* nothing */ { ([], [], []) }
+//  | decls vdecl { let (vdecl, fdecl, cdecl) = $1 in ($2::vdecl, fdecl, cdecl) }
+//  | decls fdecl { let (vdecl, fdecl, cdecl) = $1 in (vdecl, $2::fdecl, cdecl) }
+//  | decls cdecl { let (vdecl, fdecl, cdecl) = $1 in (vdecl, fdecl, $2::cdecl) }
+
+
+// cdecl:
+//   CLASS VARIABLE LBRACE vdecl_list RBRACE
+//   { { cname = $2;
+//       fields = List.rev $4 } }
 
 
 fdecl:
@@ -63,6 +75,7 @@ typ:
   | VOID  { Void  }
   | STRING { String }
   | typ ARRAY { Arr($1) }
+  // | CLASS VARIABLE { Class($2) }
 
 vdecl_list:
     /* nothing */    { [] }
@@ -115,6 +128,11 @@ expr:
   /* Arrays */
   | VARIABLE LBRACK expr RBRACK { ArrayAccess($1, $3) }
   | LBRACK args_list RBRACK { ArrayLit($2) }
+  | VARIABLE LBRACK expr RBRACK ASSIGN expr { ArrAssign($1, $3, $6) }
+  /* CALSS */
+  // | VARIABLE DOT VARIABLE { ObjAccess($1, $3) }
+  // | VARIABLE DOT VARIABLE ASSIGN expr   { ObjAssign($1, $3) }
+
 
 args_opt:
     /* nothing */ { [] }

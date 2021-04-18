@@ -145,7 +145,7 @@ let check (globals, functions) =
       with Not_found -> raise (Failure ("undeclared identifier " ^ s))
     in
 
-    (* check if of array type, return element type*)
+    (* check if of array type, return element type *)
     let is_arr_ty (v, ty) = match ty with 
         Arr(_ as t) -> 
           if t = Void then raise (Failure ("void type array " ^ v ^ " is not allowed")) 
@@ -231,6 +231,18 @@ let check (globals, functions) =
           let v_ty = type_of_identifier v in
           let e_ty = is_arr_ty (v, v_ty)
         in (e_ty, SArrayAccess(v, (t, e')))
+      | ArrAssign(v, e1, e2) as arrassign ->
+        (* check if type of e is an int *)
+        let (t, e1') = expr e1 in
+        if t != Int then raise (Failure (string_of_expr e1 ^ " is not of int type in " ^ string_of_expr arrassign))
+        else
+        (* check if variable is array type *)
+        let v_ty = type_of_identifier v in
+        let e_ty = is_arr_ty (v, v_ty) in
+        let (rt, e2') = expr e2 in
+        let err = "illegal assignment " ^ string_of_typ e_ty ^ " = " ^ 
+            string_of_typ rt ^ " in " ^ string_of_expr arrassign in
+        (check_assign e_ty rt err, SArrAssign(v, (t,e1'), (rt,e2')))
 
     in
 

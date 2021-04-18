@@ -1,0 +1,1 @@
+Fatal error: exception Failure("illegal assignment string = int in strArr2[2] = 1")

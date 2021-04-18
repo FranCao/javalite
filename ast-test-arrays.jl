@@ -11,5 +11,8 @@ int main() {
     str2dArr = [strArr1 ,strArr1];
     int2dArr = [[1],[2,3],[4,5,6]];
     intArr = int2dArr[1];
+    intArr[1] = 42;
+    print(intArr[1]);
+    strArr2[2] = 1;
     return 0;
 }

@@ -21,6 +21,7 @@ type expr =
   | Call of string * expr list
   | ArrayAccess of string * expr
   | ArrayLit of expr list
+  | ArrAssign of string * expr * expr
   | Noexpr
 
 type stmt =
@@ -77,6 +78,7 @@ let rec string_of_expr = function
   | ArrayAccess (s, e) ->
       s ^ "[" ^ string_of_expr e ^ "]"
   | ArrayLit(e) -> "[" ^ String.concat "," (List.map string_of_expr (List.rev e)) ^ "]"
+  | ArrAssign(s, e1, e2) -> s ^ "[" ^ string_of_expr e1 ^ "] = " ^ string_of_expr e2
   | Noexpr -> ""
 
 let rec string_of_stmt = function
