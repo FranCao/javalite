@@ -10,7 +10,7 @@ module StringMap = Map.Make(String)
 
    Check each global variable, then check each function *)
 
-let check (globals, functions) =
+let check (globals, classes, functions) =
 
   (* Verify a list of bindings has no void types or duplicate names *)
   let check_binds (kind : string) (binds : bind list) =
@@ -28,6 +28,44 @@ let check (globals, functions) =
   (**** Check global variables ****)
 
   check_binds "global" globals;
+
+  (**** Check classes ****)
+
+  (* Add class name to symbol table *)
+  let add_class map cd =
+    let dup_err = "duplicate class " ^ cd.cname in
+    let n = cd.cname in
+    match cd with
+      _ when StringMap.mem n map -> raise (Failure dup_err)
+    | _ -> StringMap.add n cd map
+  in
+
+  (* Collect all class names into one symbol table *)
+  let class_decls = List.fold_left add_class StringMap.empty classes
+  in
+
+  (* Return a function from our symbol table *)
+  let find_class s = 
+    try StringMap.find s class_decls
+    with Not_found -> raise (Failure ("unrecognized class " ^ s))
+  in
+
+  let check_class cls =
+    (* Make sure no fields are void or duplicates *)
+    ignore (check_binds "field" cls.fields);
+    { scname = cls.cname;
+      sfields = cls.fields }
+  in 
+
+  (* find the field bind in class *)
+  let find_field (cname, field) =
+    let cd = find_class cname in
+    let add_field m (t,n) = StringMap.add n (t,n) m in
+    let f_names = List.fold_left add_field StringMap.empty cd.fields in
+    try StringMap.find field f_names
+    with Not_found -> 
+      raise (Failure ("unrecognized field " ^ field ^ " in class " ^ cname))
+  in
 
   (**** Check functions ****)
 
@@ -88,16 +126,6 @@ let check (globals, functions) =
       body = [] } built_in_decls
    in
 
-
-   (* let built_in_decls =
-    StringMap.add "len" {
-      typ = Int;
-      fname = "len";
-      formals = [(String, "str")];
-      locals = [];
-      body = [] } built_in_decls
-   in *)
-
   (* Add function name to symbol table *)
   let add_func map fd = 
     let built_in_err = "function " ^ fd.fname ^ " may not be defined"
@@ -110,8 +138,28 @@ let check (globals, functions) =
        | _ ->  StringMap.add n fd map 
   in
 
+  let form_constructor_body (cname, field_lst) =
+    let field_args = List.map (fun (_,n) -> (n,Var(n))) field_lst in
+    let constructor = [ Expr (Assign("obj", Construct(cname, field_args))) ] in
+    let body_rev = List.rev ((Return (Var("obj"))) :: constructor) in
+    body_rev
+  in
+
+  let form_constructor cdecl =
+    let cn = cdecl.cname in
+    { typ = Object(cn);
+      fname = cn;
+      formals = cdecl.fields;
+      locals = [(Object(cn), "obj")];
+      body = form_constructor_body (cn, cdecl.fields) }
+  in
+
+  let all_constructors = List.map (fun cd -> form_constructor cd) classes in
+
+  let all_functions = List.fold_left (fun l c -> c::l) functions all_constructors in
+
   (* Collect all function names into one symbol table *)
-  let function_decls = List.fold_left add_func built_in_decls functions
+  let function_decls = List.fold_left add_func built_in_decls all_functions
   in
   
   (* Return a function from our symbol table *)
@@ -209,6 +257,27 @@ let check (globals, functions) =
           in 
           let args' = List.map2 check_call fd.formals args
           in (fd.typ, SCall(fname, args'))
+      | ObjAccess(obj, f) as objaccess ->
+        let cname = 
+          let obj_ty = type_of_identifier obj in
+          (match obj_ty with
+            Object(cn) -> cn
+          | _ -> raise (Failure (obj ^ " is not a class object in " ^ string_of_expr objaccess))) 
+        in
+        let (field_ty, _) = find_field (cname, f)
+        in (field_ty, SObjAccess(obj, cname, f))
+      | ObjAssign(obj, f, e) as objassign -> 
+        let cname = 
+          let obj_ty = type_of_identifier obj in
+          (match obj_ty with
+            Object(cn) -> cn
+          | _ -> raise (Failure (obj ^ " is not a class object in " ^ string_of_expr objassign))) 
+        in
+        let (field_ty, _) = find_field (cname, f) in
+        let (rt, e') = expr e in
+        let err = "illegal assignment " ^ string_of_typ field_ty ^ " = " ^ 
+            string_of_typ rt ^ " in " ^ string_of_expr objassign in
+        (check_assign field_ty rt err, SObjAssign(obj, cname, f, (rt,e')))
       | ArrayLit(el) as arraylit ->
         (* check if types of expr are consistent *)
           let ty_inconsistent_err = "inconsistent types in array " ^ string_of_expr arraylit in
@@ -222,6 +291,9 @@ let check (globals, functions) =
           (* determine arr type *)
           else let arr_ty = Arr(fst_ty)
         in (arr_ty, SArrayLit(arr_ty_e))
+      | Construct(cname, args) ->
+        let args' = List.map (fun (s,e) -> (s, (expr e))) args
+        in (Object(cname), SConstruct(cname, args'))
       | ArrayAccess(v, e) as arrayacess ->
           (* check if type of e is an int *)
           let (t, e') = expr e in
@@ -285,4 +357,4 @@ let check (globals, functions) =
 	SBlock(sl) -> sl
       | _ -> raise (Failure ("internal error: block didn't become a block?"))
     }
-  in (globals, List.map check_function functions)
+  in (globals, List.map check_class classes, List.map check_function all_functions)
