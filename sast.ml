@@ -29,6 +29,7 @@ type sstmt =
   | SIf of sexpr * sstmt * sstmt
   | SFor of sexpr * sexpr * sexpr * sstmt
   | SWhile of sexpr * sstmt
+  | SDecAssn of typ * string * sexpr
 
 type sfunc_decl = {
     styp : typ;
@@ -43,7 +44,7 @@ type sclass_decl = {
   sfields : bind list;
 }
 
-type sprogram = bind list * sclass_decl list * sfunc_decl list
+type sprogram = sclass_decl list * sfunc_decl list
 
 (* Pretty-printing functions *)
 
@@ -92,12 +93,12 @@ let rec string_of_sstmt = function
       "for (" ^ string_of_sexpr e1  ^ " ; " ^ string_of_sexpr e2 ^ " ; " ^
       string_of_sexpr e3  ^ ") " ^ string_of_sstmt s
   | SWhile(e, s) -> "while (" ^ string_of_sexpr e ^ ") " ^ string_of_sstmt s
+  | SDecAssn(t, v, e) -> string_of_typ t ^ " " ^ v ^ " = " ^ string_of_sexpr e ^ ";\n"
 
 let string_of_sfdecl fdecl =
   string_of_typ fdecl.styp ^ " " ^
   fdecl.sfname ^ "(" ^ String.concat ", " (List.map snd fdecl.sformals) ^
   ")\n{\n" ^
-  String.concat "" (List.map string_of_vdecl fdecl.slocals) ^
   String.concat "" (List.map string_of_sstmt fdecl.sbody) ^
   "}\n"
 
@@ -106,7 +107,6 @@ let string_of_scdecl cdecl =
   String.concat "" (List.map string_of_vdecl cdecl.sfields) ^
   "}\n"
 
-let string_of_sprogram (vars, classes, funcs) =
-  String.concat "" (List.map string_of_vdecl vars) ^ "\n" ^
+let string_of_sprogram (classes, funcs) =
   String.concat "\n" (List.map string_of_scdecl classes) ^ "\n" ^
   String.concat "\n" (List.map string_of_sfdecl funcs)

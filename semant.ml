@@ -10,7 +10,7 @@ module StringMap = Map.Make(String)
 
    Check each global variable, then check each function *)
 
-let check (globals, classes, functions) =
+let check (classes, functions) =
 
   (* Verify a list of bindings has no void types or duplicate names *)
   let check_binds (kind : string) (binds : bind list) =
@@ -26,8 +26,6 @@ let check (globals, classes, functions) =
   in
 
   (**** Check global variables ****)
-
-  check_binds "global" globals;
 
   (**** Check classes ****)
 
@@ -184,7 +182,7 @@ let check (globals, classes, functions) =
 
     (* Build local symbol table of variables for this function *)
     let symbols = List.fold_left (fun m (ty, name) -> StringMap.add name ty m)
-	                StringMap.empty (globals @ func.formals @ func.locals )
+	                StringMap.empty (func.formals @ func.locals )
     in
 
     (* Return a variable from our local symbol table *)
@@ -357,4 +355,4 @@ let check (globals, classes, functions) =
 	SBlock(sl) -> sl
       | _ -> raise (Failure ("internal error: block didn't become a block?"))
     }
-  in (globals, List.map check_class classes, List.map check_function all_functions)
+  in (List.map check_class classes, List.map check_function all_functions)

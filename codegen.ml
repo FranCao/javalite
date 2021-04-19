@@ -19,7 +19,7 @@ open Sast
 module StringMap = Map.Make(String)
 
 (* translate : Sast.program -> Llvm.module *)
-let translate (globals, classes, functions) =
+let translate (classes, functions) =
   let context    = L.global_context () in
   
   (* Create the LLVM compilation module into which
@@ -99,11 +99,6 @@ let translate (globals, classes, functions) =
   in
 
   (* Create a map of global variables after creating each *)
-  let global_vars : L.llvalue StringMap.t =
-    let global_var m (t, n) = 
-      let init = init_var t
-      in StringMap.add n (L.define_global n init the_module) m in
-    List.fold_left global_var StringMap.empty globals in
   
   (* Import modules for our built-in functions and print *)
   let printf_t : L.lltype = 
@@ -198,13 +193,13 @@ let translate (globals, classes, functions) =
 
       let formals = List.fold_left2 add_formal StringMap.empty fdecl.sformals
           (Array.to_list (L.params the_function)) in
-      List.fold_left add_local formals fdecl.slocals 
+      List.fold_left add_local formals fdecl.slocals
     in
     
     (* Return the value for a variable or formal argument.
        Check local names first, then global names *)
     let lookup n = try StringMap.find n local_vars
-                   with Not_found -> StringMap.find n global_vars
+                   with Not_found -> StringMap.find n StringMap.empty
     in
 
     let i32_t_pt = L.string_of_lltype i32_t in

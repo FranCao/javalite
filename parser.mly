@@ -35,16 +35,10 @@ open Ast
 program:
   decls EOF { $1 }
 
-// decls:
-//    /* nothing */ { ([], [])               }
-//  | decls vdecl { (($2 :: fst $1), snd $1) }
-//  | decls fdecl { (fst $1, ($2 :: snd $1)) }
 decls:
-   /* nothing */ { ([], [], []) }
- | decls vdecl { let (vdecl, cdecl, fdecl) = $1 in ($2::vdecl, cdecl, fdecl) }
- | decls cdecl { let (vdecl, cdecl, fdecl) = $1 in (vdecl, $2::cdecl, fdecl) }
- | decls fdecl { let (vdecl, cdecl, fdecl) = $1 in (vdecl, cdecl, $2::fdecl) }
-
+    /* nothing */ { ([], [])               }
+  | decls cdecl { (($2 :: fst $1), snd $1) }
+  | decls fdecl { (fst $1, ($2 :: snd $1)) }
 
 cdecl:
   CLASS VARIABLE LBRACE vdecl_list RBRACE
@@ -53,12 +47,12 @@ cdecl:
 
 
 fdecl:
-   typ VARIABLE LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+   typ VARIABLE LPAREN formals_opt RPAREN LBRACE stmt_list RBRACE
      { { typ = $1;
 	 fname = $2;
 	 formals = List.rev $4;
-	 locals = List.rev $7;
-	 body = List.rev $8 } }
+   locals = [];
+	 body = List.rev $7 } }
 
 formals_opt:
     /* nothing */ { [] }
@@ -97,6 +91,7 @@ stmt:
   | FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt
                                             { For($3, $5, $7, $9)   }
   | WHILE LPAREN expr RPAREN stmt           { While($3, $5)         }
+  | typ VARIABLE ASSIGN expr SEMI           { DecAssn($1, $2, $4)   }
 
 expr_opt:
     /* nothing */ { Noexpr }

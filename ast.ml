@@ -34,6 +34,7 @@ type stmt =
   | If of expr * stmt * stmt
   | For of expr * expr * expr * stmt
   | While of expr * stmt
+  | DecAssn of typ * string * expr
 
 type func_decl = {
     typ : typ;
@@ -48,7 +49,7 @@ type class_decl = {
   fields: bind list;
 }
 
-type program = bind list * class_decl list * func_decl list
+type program = class_decl list * func_decl list
 
 (* Pretty-printing functions *)
 
@@ -69,6 +70,16 @@ let string_of_op = function
 let string_of_uop = function
     Neg -> "-"
   | Not -> "!"
+
+let rec string_of_typ = function
+    Int -> "int"
+  | Bool -> "bool"
+  | Double -> "double"
+  | Void -> "void"
+  | String -> "string"
+  | Any -> "any"
+  | Arr(t) -> string_of_typ t ^ "[]"
+  | Object(s) -> "class " ^ s
 
 let rec string_of_expr = function
     IntLit(l) -> string_of_int l
@@ -104,16 +115,7 @@ let rec string_of_stmt = function
       "for (" ^ string_of_expr e1  ^ " ; " ^ string_of_expr e2 ^ " ; " ^
       string_of_expr e3  ^ ") " ^ string_of_stmt s
   | While(e, s) -> "while (" ^ string_of_expr e ^ ") " ^ string_of_stmt s
-
-let rec string_of_typ = function
-    Int -> "int"
-  | Bool -> "bool"
-  | Double -> "double"
-  | Void -> "void"
-  | String -> "string"
-  | Any -> "any"
-  | Arr(t) -> string_of_typ t ^ "[]"
-  | Object(s) -> "class " ^ s
+  | DecAssn (t, v, e) -> string_of_typ t ^ " " ^ v ^ " = " ^ string_of_expr e ^ ";\n"
 
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
 
@@ -121,7 +123,6 @@ let string_of_fdecl fdecl =
   string_of_typ fdecl.typ ^ " " ^
   fdecl.fname ^ "(" ^ String.concat ", " (List.map snd fdecl.formals) ^
   ")\n{\n" ^
-  String.concat "" (List.map string_of_vdecl fdecl.locals) ^
   String.concat "" (List.map string_of_stmt fdecl.body) ^
   "}\n"
 
@@ -130,8 +131,7 @@ let string_of_cdecl cdecl =
   String.concat "" (List.map string_of_vdecl cdecl.fields) ^
   "}\n"
 
-let string_of_program (vars, classes, funcs) =
-  String.concat "" (List.map string_of_vdecl vars) ^ "\n" ^
+let string_of_program (classes, funcs) =
   String.concat "\n" (List.map string_of_cdecl classes) ^ "\n" ^
   String.concat "\n" (List.map string_of_fdecl funcs)
   
