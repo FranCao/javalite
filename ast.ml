@@ -23,6 +23,8 @@ type expr =
   | ArrayLit of expr list
   | ArrAssign of string * expr * expr
   | ObjAccess of string * string
+  | ObjAssign of string * string * expr
+  | Construct of string * (string * expr) list
   | Noexpr
 
 type stmt =
@@ -86,6 +88,8 @@ let rec string_of_expr = function
   | ArrayLit(e) -> "[" ^ String.concat "," (List.map string_of_expr (List.rev e)) ^ "]"
   | ArrAssign(s, e1, e2) -> s ^ "[" ^ string_of_expr e1 ^ "] = " ^ string_of_expr e2
   | ObjAccess(s1, s2) -> s1 ^ "." ^ s2
+  | ObjAssign(s1, s2, e) -> s1 ^ "." ^ s2 ^ " = " ^ string_of_expr e
+  | Construct(s, _) -> "Constructor " ^ s
   | Noexpr -> ""
 
 let rec string_of_stmt = function

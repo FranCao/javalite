@@ -16,7 +16,10 @@ and sx =
   | SArrayAccess of string * sexpr
   | SArrayLit of sexpr list
   | SArrAssign of string * sexpr * sexpr
-  | SObjAccess of string * string
+  | SObjAccess of string * string * string
+  | SObjAssign of string * string * string * sexpr
+  (* cname * (field_name * field_value) list *)
+  | SConstruct of string * (string * sexpr) list
   | SNoexpr
 
 type sstmt =
@@ -62,7 +65,9 @@ let rec string_of_sexpr (t, e) =
       s ^ "[" ^ string_of_sexpr e ^ "]"
   | SArrayLit(e) -> "[" ^ String.concat "," (List.map string_of_sexpr (List.rev e)) ^ "]"
   | SArrAssign(s, e1, e2) -> s ^ "[" ^ string_of_sexpr e1 ^ "] = " ^ string_of_sexpr e2
-  | SObjAccess(s1, s2) -> s1 ^ "." ^ s2
+  | SObjAccess(s1, c, s2) -> s1 ^ "(class " ^ c ^ ")." ^ s2
+  | SObjAssign(s1, c, s2, e) -> s1 ^ "(class " ^ c ^ ")." ^ s2 ^ " = " ^ string_of_sexpr e
+  | SConstruct(s, _) -> "Constructor " ^ s 
   | SNoexpr -> ""
 				  ) ^ ")"
 

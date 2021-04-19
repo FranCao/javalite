@@ -36,6 +36,42 @@ let translate (globals, classes, functions) =
   (* string type *)
   let string_t   = L.pointer_type i8_t in
 
+  let add_class_typ map cd =
+    let cname = cd.scname in
+    let typ_lst = List.map (fun (t,_) -> t) cd.sfields in
+    StringMap.add cname typ_lst map
+  in
+  (* store all class name and corresponding field type list *)
+  let class_types = List.fold_left add_class_typ StringMap.empty classes
+  in
+  (* get the list of field types for a class *)
+  let find_field_typs cname = 
+    try StringMap.find cname class_types 
+    with Not_found -> raise (Failure ("find_field_typs not found " ^ cname))
+  in 
+
+  let add_field_name map cd =
+    let cname = cd.scname in
+    let field_lst = List.map (fun (_,n) -> n) cd.sfields in
+    StringMap.add cname field_lst map
+  in
+
+  let class_fields = List.fold_left add_field_name StringMap.empty classes
+  in
+
+  let add_cd m cd = StringMap.add cd.scname cd.sfields m in
+  let class_ty_fields = List.fold_left add_cd StringMap.empty classes 
+  in
+
+  let get_field_ind (cname, fname) = 
+    let f_lst = 
+      try StringMap.find cname class_fields
+      with Not_found -> raise (Failure ("get_field_ind not found " ^ cname))
+     in
+    let f_lst_ind = List.mapi (fun i n -> (n, i)) f_lst in
+    snd (List.hd (List.filter (fun (n, _) -> n = fname) f_lst_ind))
+  in
+
   (* Return the LLVM type for a MicroC type *)
   let rec ltype_of_typ = function
       A.Int    -> i32_t
@@ -43,7 +79,13 @@ let translate (globals, classes, functions) =
     | A.Double -> double_t
     | A.Void   -> void_t
     | A.String -> string_t
-    | A.Arr ty -> L.pointer_type (ltype_of_typ ty)
+    | A.Arr(ty) -> L.pointer_type (ltype_of_typ ty)
+    | A.Object(cls) -> 
+      let cls_typ =
+        let types = find_field_typs cls in
+        let ll_typs = List.map ltype_of_typ types in
+        L.struct_type context (Array.of_list ll_typs)
+      in L.pointer_type cls_typ
     | _        -> raise (Failure "Unmatched LLVM type in ltype_of_typ")
   in
 
@@ -68,12 +110,6 @@ let translate (globals, classes, functions) =
       L.var_arg_function_type i32_t [| string_t |] in
   let printf_func : L.llvalue = 
       L.declare_function "printf" printf_t the_module in
-  
-  (* testing *)
-  (* let sizeof_t : L.lltype = 
-    L.var_arg_function_type i32_t [| string_t |] in
-  let sizeof_func : L.llvalue = 
-      L.declare_function "sizeof" sizeof_t the_module in *)
 
   let reversestring_t : L.lltype =
       L.function_type string_t [| string_t |] in
@@ -123,7 +159,10 @@ let translate (globals, classes, functions) =
   
   (* Fill in the body of the given function *)
   let build_function_body fdecl =
-    let (the_function, _) = StringMap.find fdecl.sfname function_decls in
+    let (the_function, _) = 
+      try StringMap.find fdecl.sfname function_decls
+      with Not_found -> raise (Failure ("build_function_body not found " ^ fdecl.sfname))
+    in
     let builder = L.builder_at_end context (L.entry_block the_function) in
 
     let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder
@@ -204,8 +243,13 @@ let translate (globals, classes, functions) =
       | SVar v        -> match_typ (L.element_type (L.type_of (lookup v)))
       | SAssign(v, _)        -> find_type (SVar(v))
       | SArrayAccess(s, _)   -> match_typ (L.element_type (L.element_type (L.type_of (lookup s))))
+      | SObjAccess(_, c, f) -> 
+        let f_lst = StringMap.find c class_ty_fields in
+        fst (List.hd (List.filter (fun (_,n) -> n = f) f_lst))
       | SArrayLit _      -> raise (Failure "SArrayLit not implemented")
-      | SArrAssign _ -> raise (Failure "SArrAssign not implemented")
+      | SConstruct _ -> raise (Failure "SConstruct cannot be printed")
+      | SArrAssign _ -> raise (Failure "SArrAssign cannot be printed")
+      | SObjAssign _ -> raise (Failure "SObjAssign cannot be printed")
     in
 
     (* Construct code for an expression; return its value *)
@@ -231,6 +275,18 @@ let translate (globals, classes, functions) =
           ignore(L.build_store elt elt_ptr builder)
         in List.iteri store_elt elts;
         arr_ptr
+      | SConstruct (cname, args) ->
+        let obj_ty = ltype_of_typ (A.Object(cname)) in 
+        let obj_alloca = L.build_malloc obj_ty "constrObj" builder in
+        (* bitcast *)
+        let obj_ptr = L.build_pointercast obj_alloca obj_ty "constrPtr" builder in
+        (* store all fields *)
+        let store_field (fname, e) =
+          let f_val = expr builder e in
+          let ind = get_field_ind (cname, fname) in
+          let f_ptr = L.build_struct_gep obj_ptr ind fname builder in
+            ignore(L.build_store f_val f_ptr builder)
+        in List.iter store_field args; obj_ptr
       | SArrayAccess (s, e)  -> 
         let ind = expr builder e in
         let (ty, _) = e in
@@ -239,6 +295,11 @@ let translate (globals, classes, functions) =
         let arr = expr builder (ty, (SVar s)) in
         let elt = L.build_gep arr [| pos |] "acceltptr" builder in
         L.build_load elt "accelt" builder
+      | SObjAccess (s, cname, f) -> 
+        let obj = expr builder (A.String, (SVar s)) in
+        let obj_ptr = L.build_load obj "objld" builder in
+        let ind = get_field_ind (cname, f) in
+        L.build_extractvalue obj_ptr ind f builder
       | SArrAssign (s, e1, e2) ->
         let ind = expr builder e1 in
         let (ty, _) = e1 in
@@ -248,6 +309,12 @@ let translate (globals, classes, functions) =
         let new_val = expr builder e2 in
         let elt_ptr = L.build_gep arr [| pos |] "arrelt" builder in
         L.build_store new_val elt_ptr builder
+      | SObjAssign (s, cname, f, e) ->
+        let obj = expr builder (A.String, (SVar s)) in
+        let f_val = expr builder e in
+        let ind = get_field_ind (cname, f) in
+        let f_ptr = L.build_struct_gep obj ind f builder in
+        L.build_store f_val f_ptr builder
       | SNoexpr     -> L.const_int i32_t 0
       | SVar s       -> L.build_load (lookup s) s builder
       | SAssign (s, e) -> let e' = expr builder e in
@@ -324,13 +391,12 @@ let translate (globals, classes, functions) =
       L.build_call stringlen_func [| (expr builder e) |] "len" builder
       | SCall ("concat", [e1;e2]) ->
       L.build_call stringconcat_func [| (expr builder e1) ; (expr builder e2) |] "concat" builder
-      (* Testing sizeof function *)
-      (* | SCall ("len", [e]) ->
-      L.build_call sizeof_func [| (int_format_str) ; (expr builder e) |]
-	    "sizeof" builder *)
 
       | SCall (f, args) ->
-         let (fdef, fdecl) = StringMap.find f function_decls in
+         let (fdef, fdecl) = 
+          try StringMap.find f function_decls
+          with Not_found -> raise (Failure ("SCALL not found " ^ f))
+         in
 	 let llargs = List.rev (List.map (expr builder) (List.rev args)) in
 	 let result = (match fdecl.styp with 
                         A.Void -> ""

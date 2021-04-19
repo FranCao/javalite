@@ -131,7 +131,7 @@ expr:
   | VARIABLE LBRACK expr RBRACK ASSIGN expr { ArrAssign($1, $3, $6) }
   /* CALSS */
   | VARIABLE DOT VARIABLE { ObjAccess($1, $3) }
-  // | VARIABLE DOT VARIABLE ASSIGN expr   { ObjAssign($1, $3) }
+  | VARIABLE DOT VARIABLE ASSIGN expr   { ObjAssign($1, $3, $5) }
 
 
 args_opt:

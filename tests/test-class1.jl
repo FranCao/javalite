@@ -5,10 +5,12 @@ class square {
 
 int main() {
     class square sq;
-    int s;
-    string n;
     sq = square("fst_sq", 42);
-    s = sq.side;
-    n = sq.name;
+    print(sq.side);
+    print(sq.name);
+    sq.side = 2;
+    sq.name = "snd_sq";
+    print(sq.side);
+    print(sq.name);
     return 0;
 }
