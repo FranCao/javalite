@@ -91,7 +91,6 @@ stmt:
   | FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt
                                             { For($3, $5, $7, $9)   }
   | WHILE LPAREN expr RPAREN stmt           { While($3, $5)         }
-  | typ VARIABLE ASSIGN expr SEMI           { DecAssn($1, $2, $4)   }
 
 expr_opt:
     /* nothing */ { Noexpr }
@@ -118,6 +117,7 @@ expr:
   | MINUS expr %prec NOT { Unop(Neg, $2)      }
   | NOT expr          { Unop(Not, $2)          }
   | VARIABLE ASSIGN expr   { Assign($1, $3)         }
+  | typ VARIABLE ASSIGN expr        { DecAssn($1, $2, $4)   }
   | VARIABLE LPAREN args_opt RPAREN { Call($1, $3)  }
   | LPAREN expr RPAREN { $2                   }
   /* Arrays */
