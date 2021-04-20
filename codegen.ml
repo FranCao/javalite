@@ -338,16 +338,26 @@ let translate (globals, classes, functions) =
 	  ) e1' e2' "tmp" builder
 
     (* String operations *)
-      | SBinop ((A.String,_ ) as e1, op, e2) ->
-	  (match op with 
-	    A.Add     -> expr builder (A.String, SStrLit((print_sstring e1) ^ (print_sstring e2)))
-    (* | A.Equal   -> expr builder (A.String, SIntLit(compare_sstring (e1,e2))) *)
-    (* | A.Equal   -> if (expr builder (A.Bool,SBoolLit(compare_sstring (e1,e2)))) = true then (L.const_int i32_t 1)
-                    else (L.const_int i32_t 0) *)
-    (* | A.Equal   -> if (expr builder (A.String, SStrLit((print_sstring e1))) && (expr builder (A.String, SStrLit((print_sstring e2)))))= true then (L.const_int i32_t 1)
-                    else (L.const_int i32_t 0) *)
-    | _         -> raise (Failure "internal error: cannot perform this operation on string")
-    )
+    | SBinop ((A.String,_ ) as e1, op, e2) ->
+      (match op with 
+        A.Add     -> expr builder (A.String, SStrLit((print_sstring e1) ^ (print_sstring e2)))
+      | _ -> 
+        let load_str e =
+          let e' = expr builder e in
+          let e_ptr = L.build_pointercast e' (L.pointer_type string_t) "strPtr" builder in
+          L.build_load e_ptr "strptrld" builder in
+        let s1 = load_str e1
+        and s2 = load_str e2 in
+          (match op with
+        | A.Equal   -> L.build_icmp L.Icmp.Eq
+        | A.Neq     -> L.build_icmp L.Icmp.Ne
+        | A.Less    -> L.build_icmp L.Icmp.Slt
+        | A.Leq     -> L.build_icmp L.Icmp.Sle
+        | A.Greater -> L.build_icmp L.Icmp.Sgt
+        | A.Geq     -> L.build_icmp L.Icmp.Sge
+        | _ -> raise (Failure "internal error: cannot perform this operation on string")
+        ) s1 s2 "strcmp" builder
+      )
 
       | SBinop (e1, op, e2) ->
 	  let e1' = expr builder e1

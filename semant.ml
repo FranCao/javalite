@@ -235,7 +235,7 @@ let check (globals, classes, functions) =
           | Add | Sub | Mult | Div when same && t1 = Double -> Double
           | Equal | Neq            when same               -> Bool
           | Less | Leq | Greater | Geq
-                     when same && (t1 = Int || t1 = Double) -> Bool
+                     when same && (t1 = Int || t1 = Double || t1 = String) -> Bool
           | And | Or when same && t1 = Bool -> Bool
           | Add when same && t1 = String -> String
           | _ -> raise (
