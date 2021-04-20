@@ -5,17 +5,14 @@ class Record {
 }
 
 void updateComment(class Record r, string cmt) {
-    string msg;
-    msg = concat("old comment: ", r.comment);
+    string msg = concat("old comment: ", r.comment);
     print(msg);
     r.comment = cmt;
 }
 
 int main() {
-    class Record rec;
-    string msg;
-    rec = Record(0, 42, "added on Apr 10, 2021");
+    class Record rec = Record(0, 42, "added on Apr 10, 2021");
     updateComment(rec, "updated on Apr 18, 2021");
-    msg = concat("new comment: ", rec.comment);
+    string msg = concat("new comment: ", rec.comment);
     print(msg);
 }
