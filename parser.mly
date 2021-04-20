@@ -58,7 +58,7 @@ fdecl:
 	 fname = $2;
 	 formals = List.rev $4;
 	 locals = [];
-	 body = $7 } }
+	 body = List.rev $7 } }
 
 formals_opt:
     /* nothing */ { [] }

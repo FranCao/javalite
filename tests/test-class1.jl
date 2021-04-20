@@ -4,8 +4,7 @@ class square {
 }
 
 int main() {
-    class square sq;
-    sq = square("fst_sq", 42);
+    class square sq = square("fst_sq", 42);
     print(sq.side);
     print(sq.name);
     sq.side = 2;

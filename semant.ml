@@ -165,8 +165,9 @@ let check (classes, functions) =
 
   let form_constructor_body (cname, field_lst) =
     let field_args = List.map (fun (_,n) -> (n,Var(n))) field_lst in
-    let constructor = [ Expr (Assign("obj", Construct(cname, field_args))) ] in
-    let body_rev = List.rev ((Return (Var("obj"))) :: constructor) in
+    let return_body = [ Return (Var("obj")) ] in
+    let constructor = Expr (DecAssn(Object(cname), "obj", Construct(cname, field_args))) in
+    let body_rev = constructor :: return_body in
     body_rev
   in
 
@@ -175,7 +176,7 @@ let check (classes, functions) =
     { typ = Object(cn);
       fname = cn;
       formals = cdecl.fields;
-      locals = [(Object(cn), "obj")];
+      locals = [];
       body = form_constructor_body (cn, cdecl.fields) }
   in
 
@@ -366,7 +367,8 @@ let check (classes, functions) =
         Expr e -> SExpr (expr e)
       | If(p, b1, b2) -> SIf(check_bool_expr p, check_stmt b1, check_stmt b2)
       | For(e1, e2, e3, st) ->
-	  SFor(expr e1, check_bool_expr e2, expr e3, check_stmt st)
+        let e1' = expr e1 in
+	      SFor(e1', check_bool_expr e2, expr e3, check_stmt st)
       | While(p, s) -> SWhile(check_bool_expr p, check_stmt s)
       | Return e -> let (t, e') = expr e in
         if t = func.typ then SReturn (t, e') 
@@ -378,12 +380,13 @@ let check (classes, functions) =
 	       follows any Return statement.  Nested blocks are flattened. *)
       | Block sl -> 
           let rec check_stmt_list = function
-              [Return _ as s] -> [check_stmt s]
-            | Return _ :: _   -> raise (Failure "nothing may follow a return")
-            | Block sl :: ss  -> check_stmt_list (sl @ ss) (* Flatten blocks *)
+            Return _ :: _   -> raise (Failure "nothing may follow a return")
+            | Block sl :: ss  -> check_stmt_list (ss @ sl) (* Flatten blocks *)
             | s :: ss         -> check_stmt s :: check_stmt_list ss
             | []              -> []
+            | [Return _ as s] -> [check_stmt s]
           in SBlock(check_stmt_list sl)
+          (* in SBlock(check_stmt_list sl) *)
 
     in (* body of check_function *)
     { styp = func.typ;

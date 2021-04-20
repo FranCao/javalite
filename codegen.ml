@@ -16,7 +16,16 @@ module L = Llvm
 module A = Ast
 open Sast 
 
-module StringMap = Map.Make(String)
+module StringMap = Map.Make(String);;
+
+module HashtblString =
+   struct 
+    type t = string
+    let equal = ( = )
+    let hash = Hashtbl.hash
+   end;;
+
+module StringHash = Hashtbl.Make(HashtblString);;
 
 (* translate : Sast.program -> Llvm.module *)
 let translate (classes, functions) =
@@ -187,7 +196,7 @@ let translate (classes, functions) =
     (* Construct the function's "locals": formal arguments and locally
        declared variables.  Allocate each on the stack, initialize their
        value, if appropriate, and remember their values in the "locals" map *)
-    let local_vars =
+    (* let local_vars =
       let add_formal m (t, n) p = 
         L.set_value_name n p;
 	  let local = L.build_alloca (ltype_of_typ t) n builder in
@@ -204,12 +213,22 @@ let translate (classes, functions) =
       let formals = List.fold_left2 add_formal StringMap.empty fdecl.sformals
           (Array.to_list (L.params the_function)) in
       List.fold_left add_local formals fdecl.slocals 
-    in
+    in *)
+
+    let tbl = StringHash.create 10 in
+      let add_formal tbl (t, n) p = 
+        L.set_value_name n p;
+        let local = L.build_alloca (ltype_of_typ t) n builder in
+            ignore (L.build_store p local builder);
+        StringHash.add tbl n local; tbl in
+      let formals = List.fold_left2 add_formal tbl fdecl.sformals
+        (Array.to_list (L.params the_function)) in
+
     
     (* Return the value for a variable or formal argument.
        Check local names first, then global names *)
-    let lookup n = try StringMap.find n local_vars
-                  with Not_found -> raise (Failure ("variable " ^ n ^ "not found in lookup"))
+    let lookup n = try StringHash.find tbl n
+                  with Not_found -> raise (Failure ("variable " ^ n ^ " not found in lookup"))
                    (* with Not_found -> StringMap.find n global_vars *)
     in
 
@@ -256,6 +275,7 @@ let translate (classes, functions) =
       | SConstruct _ -> raise (Failure "SConstruct cannot be printed")
       | SArrAssign _ -> raise (Failure "SArrAssign cannot be printed")
       | SObjAssign _ -> raise (Failure "SObjAssign cannot be printed")
+      | SDecAssn _ -> raise (Failure "SDecAssn not implemented")
     in
 
     (* Construct code for an expression; return its value *)
@@ -325,6 +345,11 @@ let translate (classes, functions) =
       | SVar s       -> L.build_load (lookup s) s builder
       | SAssign (s, e) -> let e' = expr builder e in
                           ignore(L.build_store e' (lookup s) builder); e'
+      | SDecAssn (t, s, e) -> 
+        let e' = expr builder e in
+        let var = L.build_alloca (ltype_of_typ t) s builder in
+            ignore (L.build_store e' var builder);
+        StringHash.add tbl s var; e'
       | SBinop ((A.Double,_ ) as e1, op, e2) ->
 	  let e1' = expr builder e1
 	  and e2' = expr builder e2 in
@@ -481,12 +506,13 @@ let translate (classes, functions) =
 	  L.builder_at_end context merge_bb
 
       (* Implement for loops as while loops *)
-      | SFor (e1, e2, e3, body) -> stmt builder
-	    ( SBlock [SExpr e1 ; SWhile (e2, SBlock [body ; SExpr e3]) ] )
+      | SFor (e1, e2, e3, body) -> let e1' = SExpr e1
+      in stmt builder
+	    ( SBlock [e1' ; SWhile (e2, SBlock [body ; SExpr e3]) ] )
     in
 
     (* Build the code for each statement in the function *)
-    let builder = stmt builder (SBlock fdecl.sbody) in
+    let builder = stmt builder (SBlock (List.rev fdecl.sbody)) in
 
     (* Add a return if the last block falls off the end *)
     add_terminal builder (match fdecl.styp with
