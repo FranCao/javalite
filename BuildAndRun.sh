@@ -23,7 +23,7 @@ JAVALITE="./javalite.native"
 # Set time limit for all operations
 ulimit -t 30
 
-globallog=testall.log
+globallog=BuildAndRun.log
 rm -f $globallog
 error=0
 globalerror=0
@@ -116,7 +116,7 @@ shift `expr $OPTIND - 1`
 
 LLIFail() {
   echo "Could not find the LLVM interpreter \"$LLI\"."
-  echo "Check your LLVM installation and/or modify the LLI variable in testall.sh"
+  echo "Check your LLVM installation and/or modify the LLI variable in BuildAndRun.sh"
   exit 1
 }
 
