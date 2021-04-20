@@ -229,12 +229,11 @@ let check (classes, functions) =
             string_of_typ rt ^ " in " ^ string_of_expr ex
           in (check_assign lt rt err, SAssign(var, (rt, e')))
       | DecAssn (t, var, e) as ex ->
-        let symbols = StringMap.add var t tbl in
-        let lt = type_of_identifier var symbols
-          and (rt, e') = expr symbols e in
-          let err = "illegal assignment " ^ string_of_typ lt ^ " = " ^ 
+          let symbols = StringMap.add var t tbl in
+          let (rt, e') = expr symbols e in
+          let err = "illegal assignment " ^ string_of_typ t ^ " = " ^ 
             string_of_typ rt ^ " in " ^ string_of_expr ex
-          in (check_assign lt rt err, SAssign(var, (rt, e')))
+          in (check_assign t rt err, SAssign(var, (rt, e')))
       | Unop(op, e) as ex -> 
           let (t, e') = expr tbl e in
           let ty = match op with
