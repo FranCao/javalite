@@ -41,6 +41,16 @@ let check (globals, functions) =
     in List.fold_left add_bind StringMap.empty [ "print" ]
   in
 
+  (* Array print support *)
+  (* let built_in_print_decls = 
+    StringMap.add "to_string" {
+      typ = String;
+      fname = "to_string"; 
+      formals = [(Any, "x")];
+      locals = []; 
+      body = [] } built_in_print_decls
+  in *)
+
   let built_in_decls = 
     let add_str_func map (name, ty) = StringMap.add name {
       typ = String;
@@ -49,7 +59,7 @@ let check (globals, functions) =
       locals = []; body = [] } map
     in List.fold_left add_str_func built_in_print_decls [ ("reverse", String);
                                 ("upper", String);
-                                ("lower", String); ]
+                                ("lower", String) ]
   in
 
   let built_in_decls =

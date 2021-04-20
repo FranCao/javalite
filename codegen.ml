@@ -69,12 +69,6 @@ let translate (globals, functions) =
   let printf_func : L.llvalue = 
       L.declare_function "printf" printf_t the_module in
   
-  (* testing *)
-  (* let sizeof_t : L.lltype = 
-    L.var_arg_function_type i32_t [| string_t |] in
-  let sizeof_func : L.llvalue = 
-      L.declare_function "sizeof" sizeof_t the_module in *)
-
   let reversestring_t : L.lltype =
       L.function_type string_t [| string_t |] in
   let reversestring_func : L.llvalue =
@@ -109,6 +103,12 @@ let translate (globals, functions) =
       L.function_type string_t [| string_t ; string_t |] in
   let stringconcat_func : L.llvalue =
       L.declare_function "concat" stringconcat_t the_module in
+
+  (* Array functions *)
+  let to_string_t : L.lltype = 
+      L.var_arg_function_type string_t [| string_t |] in
+  let to_string : L.llvalue =
+      L.declare_function "to_string" to_string_t the_module in
 
   (* Define each function (arguments and return type) so we can 
      call it even before we've created its body *)
@@ -324,10 +324,13 @@ let translate (globals, functions) =
       L.build_call stringlen_func [| (expr builder e) |] "len" builder
       | SCall ("concat", [e1;e2]) ->
       L.build_call stringconcat_func [| (expr builder e1) ; (expr builder e2) |] "concat" builder
-      (* Testing sizeof function *)
-      (* | SCall ("len", [e]) ->
-      L.build_call sizeof_func [| (int_format_str) ; (expr builder e) |]
-	    "sizeof" builder *)
+      
+      | SCall ("to_string", [e]) ->
+        let e' = expr builder e in
+        let p_e = L.build_alloca (L.type_of e') "to_string" builder in
+        ignore(L.build_store e' p_e builder);
+        let v_e = L.build_bitcast p_e (string_t) "cast" builder in
+        L.build_call to_string [| (v_e) |] "to_string" builder
 
       | SCall (f, args) ->
          let (fdef, fdecl) = StringMap.find f function_decls in
