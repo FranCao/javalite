@@ -5,7 +5,7 @@ type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
 
 type uop = Neg | Not
 
-type typ = Int | Bool | Double | Void | String | Arr of typ | Any
+type typ = Int | Bool | Double | Void | String | Arr of typ | Object of string | Any
 
 type bind = typ * string
 
@@ -22,6 +22,9 @@ type expr =
   | ArrayAccess of string * expr
   | ArrayLit of expr list
   | ArrAssign of string * expr * expr
+  | ObjAccess of string * string
+  | ObjAssign of string * string * expr
+  | Construct of string * (string * expr) list
   | Noexpr
 
 type stmt =
@@ -40,7 +43,12 @@ type func_decl = {
     body : stmt list;
   }
 
-type program = bind list * func_decl list
+type class_decl = {
+  cname: string;
+  fields: bind list;
+}
+
+type program = bind list * class_decl list * func_decl list
 
 (* Pretty-printing functions *)
 
@@ -79,6 +87,9 @@ let rec string_of_expr = function
       s ^ "[" ^ string_of_expr e ^ "]"
   | ArrayLit(e) -> "[" ^ String.concat "," (List.map string_of_expr (List.rev e)) ^ "]"
   | ArrAssign(s, e1, e2) -> s ^ "[" ^ string_of_expr e1 ^ "] = " ^ string_of_expr e2
+  | ObjAccess(s1, s2) -> s1 ^ "." ^ s2
+  | ObjAssign(s1, s2, e) -> s1 ^ "." ^ s2 ^ " = " ^ string_of_expr e
+  | Construct(s, _) -> "Constructor " ^ s
   | Noexpr -> ""
 
 let rec string_of_stmt = function
@@ -102,6 +113,7 @@ let rec string_of_typ = function
   | String -> "string"
   | Any -> "any"
   | Arr(t) -> string_of_typ t ^ "[]"
+  | Object(s) -> "class " ^ s
 
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
 
@@ -113,8 +125,13 @@ let string_of_fdecl fdecl =
   String.concat "" (List.map string_of_stmt fdecl.body) ^
   "}\n"
 
+let string_of_cdecl cdecl =
+  "class " ^ cdecl.cname ^ " {\n" ^ 
+  String.concat "" (List.map string_of_vdecl cdecl.fields) ^
+  "}\n"
 
-let string_of_program (vars, funcs) =
+let string_of_program (vars, classes, funcs) =
   String.concat "" (List.map string_of_vdecl vars) ^ "\n" ^
+  String.concat "\n" (List.map string_of_cdecl classes) ^ "\n" ^
   String.concat "\n" (List.map string_of_fdecl funcs)
   
