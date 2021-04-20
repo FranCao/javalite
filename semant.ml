@@ -210,9 +210,7 @@ let check (classes, functions) =
     in   
 
     (* Build local symbol table of variables for this function *)
-    (* let symbols = List.fold_left (fun m (ty, name) -> StringMap.add name ty m)
-	                StringMap.empty (func.formals @ func.locals ) *)
-    let symbols = List.fold_left (fun tbl (ty, name) -> StringHash.add tbl name ty; tbl)
+    let _ = List.fold_left (fun tbl (ty, name) -> StringHash.add tbl name ty; tbl)
       tbl (func.formals @ func.locals )
     in
 
@@ -380,13 +378,13 @@ let check (classes, functions) =
 	       follows any Return statement.  Nested blocks are flattened. *)
       | Block sl -> 
           let rec check_stmt_list = function
-            Return _ :: _   -> raise (Failure "nothing may follow a return")
-            | Block sl :: ss  -> check_stmt_list (ss @ sl) (* Flatten blocks *)
-            | s :: ss         -> check_stmt s :: check_stmt_list ss
+            [Return _ as s] -> [check_stmt s]
+            | Return _ :: _   -> raise (Failure "nothing may follow a return")
+            | Block sl :: ss  -> check_stmt_list (sl @ ss) (* Flatten blocks *)
+            | s :: ss         -> let c = check_stmt s in
+                                  c :: check_stmt_list ss
             | []              -> []
-            | [Return _ as s] -> [check_stmt s]
           in SBlock(check_stmt_list sl)
-          (* in SBlock(check_stmt_list sl) *)
 
     in (* body of check_function *)
     { styp = func.typ;

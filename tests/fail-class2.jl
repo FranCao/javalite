@@ -4,11 +4,8 @@ class square {
 }
 
 int main() {
-    class square sq;
-    int s;
-    int n;
-    sq = square("fst_sq", 42);
-    s = sq.side;
-    n = sq.name;
+    class square sq = square("fst_sq", 42);
+    int s = sq.side;
+    int n = sq.name;
     return 0;
 }

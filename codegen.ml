@@ -97,22 +97,6 @@ let translate (classes, functions) =
       in L.pointer_type cls_typ
     | _        -> raise (Failure "Unmatched LLVM type in ltype_of_typ")
   in
-
-  (* initialize global var value *)
-  let init_var t = match t with
-    A.Double -> L.const_float (ltype_of_typ t) 0.0
-  | A.String -> L.const_pointer_null (ltype_of_typ t)
-  | A.Arr _ -> L.const_pointer_null (ltype_of_typ t)
-  | _ -> L.const_int (ltype_of_typ t) 0
-
-  in
-
-  (* Create a map of global variables after creating each *)
-  (* let global_vars : L.llvalue StringMap.t =
-    let global_var m (t, n) = 
-      let init = init_var t
-      in StringMap.add n (L.define_global n init the_module) m in
-    List.fold_left global_var StringMap.empty globals in *)
   
   (* Import modules for our built-in functions and print *)
   let printf_t : L.lltype = 
@@ -193,35 +177,16 @@ let translate (classes, functions) =
       | _         -> raise (Failure "Invalid type")
     in
 
-    (* Construct the function's "locals": formal arguments and locally
-       declared variables.  Allocate each on the stack, initialize their
-       value, if appropriate, and remember their values in the "locals" map *)
-    (* let local_vars =
-      let add_formal m (t, n) p = 
-        L.set_value_name n p;
-	  let local = L.build_alloca (ltype_of_typ t) n builder in
-        ignore (L.build_store p local builder);
-	  StringMap.add n local m 
 
-    (* Allocate space for any locally declared variables and add the
-      * resulting registers to our map *)
-      and add_local m (t, n) =
-    let local_var = L.build_alloca (ltype_of_typ t) n builder
-    in StringMap.add n local_var m 
-      in
-
-      let formals = List.fold_left2 add_formal StringMap.empty fdecl.sformals
-          (Array.to_list (L.params the_function)) in
-      List.fold_left add_local formals fdecl.slocals 
-    in *)
-
+    (* Construct a hash table for function formals and locals
+       add all the formals first *)
     let tbl = StringHash.create 10 in
       let add_formal tbl (t, n) p = 
         L.set_value_name n p;
-        let local = L.build_alloca (ltype_of_typ t) n builder in
+        let local = L.build_malloc (ltype_of_typ t) n builder in
             ignore (L.build_store p local builder);
         StringHash.add tbl n local; tbl in
-      let formals = List.fold_left2 add_formal tbl fdecl.sformals
+      let _ = List.fold_left2 add_formal tbl fdecl.sformals
         (Array.to_list (L.params the_function)) in
 
     
@@ -229,7 +194,6 @@ let translate (classes, functions) =
        Check local names first, then global names *)
     let lookup n = try StringHash.find tbl n
                   with Not_found -> raise (Failure ("variable " ^ n ^ " not found in lookup"))
-                   (* with Not_found -> StringMap.find n global_vars *)
     in
 
     let i32_t_pt = L.string_of_lltype i32_t in
@@ -290,13 +254,13 @@ let translate (classes, functions) =
         let (fst_t, _) = List.hd arr in 
         let ty = ltype_of_typ (A.Arr fst_t) in
         (* allocate memory for array *)
-        let arr_alloca = L.build_array_alloca ty len "arr" builder in
+        let arr_alloca = L.build_array_malloc ty len "arr" builder in
         (* bitcast *)
         let arr_ptr = L.build_pointercast arr_alloca ty "arrptr" builder in 
         (* store all elements *)
         let elts = List.map (expr builder) arr in
         let store_elt ind elt = 
-          let pos = L.const_int i32_t (ind + 1) in
+          let pos = L.const_int i32_t (ind) in
             let elt_ptr = L.build_gep arr_ptr [| pos |] "arrelt" builder in
           ignore(L.build_store elt elt_ptr builder)
         in List.iteri store_elt elts;
@@ -317,7 +281,7 @@ let translate (classes, functions) =
         let ind = expr builder e in
         let (ty, _) = e in
         (* increment index by one to get actual ptr position *)
-        let pos = L.build_add ind (L.const_int i32_t 1) "accpos" builder in
+        let pos = L.build_add ind (L.const_int i32_t 0) "accpos" builder in
         let arr = expr builder (ty, (SVar s)) in
         let elt = L.build_gep arr [| pos |] "acceltptr" builder in
         L.build_load elt "accelt" builder
@@ -330,7 +294,7 @@ let translate (classes, functions) =
         let ind = expr builder e1 in
         let (ty, _) = e1 in
         (* increment index by one to get actual ptr position *)
-        let pos = L.build_add ind (L.const_int i32_t 1) "accpos" builder in
+        let pos = L.build_add ind (L.const_int i32_t 0) "accpos" builder in
         let arr = expr builder (ty, (SVar s)) in
         let new_val = expr builder e2 in
         let elt_ptr = L.build_gep arr [| pos |] "arrelt" builder in
@@ -347,7 +311,7 @@ let translate (classes, functions) =
                           ignore(L.build_store e' (lookup s) builder); e'
       | SDecAssn (t, s, e) -> 
         let e' = expr builder e in
-        let var = L.build_alloca (ltype_of_typ t) s builder in
+        let var = L.build_malloc (ltype_of_typ t) s builder in
             ignore (L.build_store e' var builder);
         StringHash.add tbl s var; e'
       | SBinop ((A.Double,_ ) as e1, op, e2) ->
@@ -512,7 +476,7 @@ let translate (classes, functions) =
     in
 
     (* Build the code for each statement in the function *)
-    let builder = stmt builder (SBlock (List.rev fdecl.sbody)) in
+    let builder = stmt builder (SBlock fdecl.sbody) in
 
     (* Add a return if the last block falls off the end *)
     add_terminal builder (match fdecl.styp with

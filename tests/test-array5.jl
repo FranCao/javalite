@@ -1,13 +1,11 @@
 void repeatStr(string[] arr, int len) {
-    int i;
-    for (i = 0; i < len; i = i + 1) {
+    for (int i = 0; i < len; i = i + 1) {
         arr[i] = concat(arr[i], arr[i]);
     }
 }
 
 int main() {
-    string[] strArr;
-    strArr = ["hi", "hello", "hey"];
+    string[] strArr = ["hi", "hello", "hey"];
     print(strArr[0]);
     print(strArr[1]);
     print(strArr[2]);

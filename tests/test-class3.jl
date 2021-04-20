@@ -5,9 +5,8 @@ class Item {
 
 class Item getHighestPriority(class Item[] arr, int len) {
     class Item hi = arr[0];
-    class Item ci = hi;
     for (int i = 1; i < len; i = i + 1) {
-        ci = arr[i];
+        class Item ci = arr[i];
         if (ci.priority > hi.priority) {
             hi = ci;
         }

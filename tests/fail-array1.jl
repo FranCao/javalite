@@ -1,5 +1,4 @@
 int main() {
-    int[] nums;
-    nums = ["h", "e", "l", "l", "o"];
+    int[] nums = ["h", "e", "l", "l", "o"];
     return 0;
 }
