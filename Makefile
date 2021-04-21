@@ -26,12 +26,12 @@ javalite.native :
 .PHONY : clean
 clean :
 	ocamlbuild -clean
-	rm -rf testall.log ocamlllvm *.diff
+	rm -rf testall.log ocamlllvm *.diff *.o
 
 .PHONY : cleanup
 cleanup :
 	ocamlbuild -clean
-	rm -rf testall.log ocamlllvm *.diff *.exe *.ll *.s *.out *.err *.o
+	rm -rf testall.log ocamlllvm *.diff *.exe *.ll *.s *.out *.err
 
 # Testing the "string" example
 stringfuncs : stringfuncs.c
