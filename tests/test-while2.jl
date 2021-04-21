@@ -10,5 +10,4 @@ int foo(int a)
 
 
 print(foo(7));
-return 0;
 

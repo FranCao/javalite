@@ -5,5 +5,4 @@ int add(int x, int y)
 
 
 print( add(17, 25) );
-return 0;
 
