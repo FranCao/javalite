@@ -4,14 +4,13 @@ void repeatStr(string[] arr, int len) {
     }
 }
 
-int main() {
-    string[] strArr = ["hi", "hello", "hey"];
-    print(strArr[0]);
-    print(strArr[1]);
-    print(strArr[2]);
-    repeatStr(strArr, 3);
-    print(strArr[0]);
-    print(strArr[1]);
-    print(strArr[2]);
-    return 0;
-}
+
+string[] strArr = ["hi", "hello", "hey"];
+print(strArr[0]);
+print(strArr[1]);
+print(strArr[2]);
+repeatStr(strArr, 3);
+print(strArr[0]);
+print(strArr[1]);
+print(strArr[2]);
+

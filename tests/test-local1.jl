@@ -4,8 +4,5 @@ void foo(bool i)
   print(i + i);
 }
 
-int main()
-{
-  foo(true);
-  return 0;
-}
+
+foo(true);

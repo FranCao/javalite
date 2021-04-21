@@ -8,8 +8,7 @@ int foo(int a)
   return j;
 }
 
-int main()
-{
-  print(foo(7));
-  return 0;
-}
+
+print(foo(7));
+return 0;
+
