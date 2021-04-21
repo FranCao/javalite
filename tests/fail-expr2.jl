@@ -4,8 +4,3 @@ void foo(int c, bool d)
   bool e = false;
   e + d; /* Error: bool + int */
 }
-
-int main()
-{
-  return 0;
-}

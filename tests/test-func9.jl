@@ -4,8 +4,5 @@ void foo(int a)
   return;
 }
 
-int main()
-{
-  foo(40);
-  return 0;
-}
+foo(40);
+

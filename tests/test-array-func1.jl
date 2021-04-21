@@ -1,8 +1,6 @@
-string[] strArr;
-string s;
+string[] strArr = ["hello", "world"];
+string s = "";
 
-int main() {
-    strArr = ["hello", "world"];
-    s = to_string(strArr);
-    print(s);
-}
+s = to_string(strArr);
+print(s);
+

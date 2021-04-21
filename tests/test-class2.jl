@@ -14,7 +14,7 @@ void sayhi(class Person p) {
     print(s);
 }
 
-int main() {
-    class Person alice = Person("Alice", 3, "hey");
-    sayhi(alice);
-}
+
+class Person alice = Person("Alice", 3, "hey");
+sayhi(alice);
+
