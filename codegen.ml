@@ -181,19 +181,22 @@ let translate (classes, functions) =
     (* Construct a hash table for function formals and locals
        add all the formals first *)
     let tbl = StringHash.create 10 in
+    let formal_tbl = StringHash.create 10 in
       let add_formal tbl (t, n) p = 
         L.set_value_name n p;
         let local = L.build_malloc (ltype_of_typ t) n builder in
             ignore (L.build_store p local builder);
         StringHash.add tbl n local; tbl in
-      let _ = List.fold_left2 add_formal tbl fdecl.sformals
+      let _ = List.fold_left2 add_formal formal_tbl fdecl.sformals
         (Array.to_list (L.params the_function)) in
 
     
     (* Return the value for a variable or formal argument.
        Check local names first, then global names *)
     let lookup n = try StringHash.find tbl n
-                  with Not_found -> raise (Failure ("variable " ^ n ^ " not found in lookup"))
+                  with Not_found -> 
+                    try StringHash.find formal_tbl n
+                    with Not_found -> raise (Failure ("variable " ^ n ^ " not found in lookup"))
     in
 
     let i32_t_pt = L.string_of_lltype i32_t in

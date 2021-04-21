@@ -37,7 +37,7 @@ let check (classes, functions) =
   let check_bind tbl (t, n) =
     if t = Void then raise (Failure ("illegal void " ^ n)) else
     if (StringHash.mem tbl n) then raise (Failure ("duplicate " ^ n)) else 
-      StringHash.add tbl n t
+      StringHash.add tbl n t; tbl
   in
 
   (**** Check global variables ****)
@@ -201,6 +201,7 @@ let check (classes, functions) =
     check_binds "formal" func.formals;
     check_binds "local" func.locals;
     let tbl = StringHash.create 10 in
+    let formal_tbl = StringHash.create 5 in
 
     (* Raise an exception if the given rvalue type cannot be assigned to
        the given lvalue type *)
@@ -210,15 +211,17 @@ let check (classes, functions) =
     in   
 
     (* Build local symbol table of variables for this function *)
-    let _ = List.fold_left (fun tbl (ty, name) -> StringHash.add tbl name ty; tbl)
-      tbl (func.formals @ func.locals )
+    let _ = List.fold_left check_bind
+      formal_tbl (func.formals @ func.locals )
     in
 
     (* Return a variable from our local symbol table *)
     let type_of_identifier s =
       (* try StringMap.find s symbols *)
       try StringHash.find tbl s
-      with Not_found -> raise (Failure ("undeclared identifier " ^ s))
+      with Not_found -> 
+        try StringHash.find formal_tbl s
+        with Not_found -> raise (Failure ("undeclared identifier " ^ s))
     in
 
     (* check if of array type, return element type *)
@@ -245,7 +248,7 @@ let check (classes, functions) =
           in (check_assign lt rt err, SAssign(var, (rt, e')))
 
       | DecAssn(ty, var, e) as decassgn ->
-        check_bind tbl (ty, var);
+        ignore (check_bind tbl (ty, var));
         let (rt, e') = expr e in
         let err = "illegal assignment " ^ string_of_typ ty ^ " = " ^ 
             string_of_typ rt ^ " in " ^ string_of_expr decassgn
