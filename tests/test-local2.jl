@@ -1,7 +1,7 @@
 int foo(int a, bool b)
 {
   int c = a;
-  bool d = false
+  bool d = false;
   return c + 10;
 }
 
