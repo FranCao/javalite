@@ -1,5 +1,5 @@
 int main() {
-   int[] countingSortArray = = [0,0,0,0,0,0,0,0,0,0
+   int[] countingSortArray = [0,0,0,0,0,0,0,0,0,0
 		        ,0,0,0,0,0,0,0,0,0,0
 		        ,0,0,0,0,0,0,0,0,0,0
 		        ,0,0,0,0,0,0,0,0,0,0
@@ -15,7 +15,7 @@ int main() {
    	countingSortArray[sortingArr[i]] = countingSortArray[sortingArr[i]] + 1;   	
    }
    
-   for (i = 0 ; i < countingSortArrayLegnth ; i = i + 1) {
+   for (i = 0 ; i < countingSortArrayLength ; i = i + 1) {
    	if(countingSortArray[i] > 0){
    		for(j=0;j<countingSortArray[i];j = j+1){
    			print(i);
