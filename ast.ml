@@ -49,7 +49,7 @@ type class_decl = {
   fields: bind list;
 }
 
-type program = class_decl list * func_decl list
+type program = stmt list * class_decl list * func_decl list
 
 (* Pretty-printing functions *)
 
@@ -132,8 +132,9 @@ let string_of_cdecl cdecl =
   String.concat "" (List.map string_of_vdecl cdecl.fields) ^
   "}\n"
 
-let string_of_program (classes, funcs) =
+let string_of_program (statements, classes, funcs) =
   (* String.concat "" (List.map string_of_vdecl vars) ^ "\n" ^ *)
   String.concat "\n" (List.map string_of_cdecl classes) ^ "\n" ^
-  String.concat "\n" (List.map string_of_fdecl funcs)
+  String.concat "\n" (List.map string_of_fdecl funcs) ^ "\n" ^
+  String.concat "\n" (List.map string_of_stmt statements)
   
