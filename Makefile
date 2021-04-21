@@ -26,7 +26,7 @@ javalite.native :
 .PHONY : clean
 clean :
 	ocamlbuild -clean
-	rm -rf testall.log ocamlllvm *.diff *.o
+	rm -rf testall.log ocamlllvm *.diff
 
 .PHONY : cleanup
 cleanup :
