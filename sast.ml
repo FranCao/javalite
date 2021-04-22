@@ -21,6 +21,7 @@ and sx =
   (* cname * (field_name * field_value) list *)
   | SConstruct of string * (string * sexpr) list
   | SDecAssn of typ * string * sexpr
+  | SNullPtr of typ
   | SNoexpr
 
 type sstmt =
@@ -70,6 +71,7 @@ let rec string_of_sexpr (t, e) =
   | SObjAssign(s1, c, s2, e) -> s1 ^ "(class " ^ c ^ ")." ^ s2 ^ " = " ^ string_of_sexpr e
   | SConstruct(s, _) -> "Constructor " ^ s 
   | SDecAssn(t, s, e) -> string_of_typ t ^ " " ^ s ^ " = " ^ string_of_sexpr e
+  | SNullPtr(t) ->  string_of_typ t ^ " Null"
   | SNoexpr -> ""
 				  ) ^ ")"
 

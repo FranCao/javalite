@@ -205,10 +205,18 @@ let check (classes, functions) =
 
     (* Raise an exception if the given rvalue type cannot be assigned to
        the given lvalue type *)
-    let check_assign lvaluet rvaluet err =
+    (* let check_assign lvaluet rvaluet err =
       if lvaluet = Any then rvaluet else
        if lvaluet = rvaluet then lvaluet else raise (Failure err)
-    in   
+    in    *)
+
+    let check_assign lvaluet rvaluet err =
+      if lvaluet = Any then rvaluet else
+        if lvaluet = rvaluet then lvaluet else
+          (match lvaluet with
+            Object(_) -> if rvaluet = Null then lvaluet else raise (Failure err)
+          | _ -> raise (Failure err))
+    in
 
     (* Build local symbol table of variables for this function *)
     let _ = List.fold_left check_bind
@@ -233,26 +241,46 @@ let check (classes, functions) =
     in
 
     (* Return a semantically-checked expression, i.e., with a type *)
-    let rec expr = function
+    let rec expr e = 
+      let check_assign_null e lt err =
+        let (rt, e') = expr e in
+        let ty = check_assign lt rt err in
+        if e' = (SNullPtr Null) then (ty, (SNullPtr ty)) else (ty, e')
+      in
+      
+      (match e with
         IntLit  l -> (Int, SIntLit l)
       | DoubleLit l -> (Double, SDoubleLit l)
       | BoolLit l  -> (Bool, SBoolLit l)
       | StrLit s -> (String, SStrLit s)
       | Noexpr     -> (Void, SNoexpr)
+      | NullPtr t -> (t, SNullPtr t)
       | Var s       -> (type_of_identifier s, SVar s)
       | Assign(var, e) as ex -> 
-          let lt = type_of_identifier var
-          and (rt, e') = expr e in
+          let lt = type_of_identifier var in
+          let (rt, _) = expr e in
           let err = "illegal assignment " ^ string_of_typ lt ^ " = " ^ 
-            string_of_typ rt ^ " in " ^ string_of_expr ex
-          in (check_assign lt rt err, SAssign(var, (rt, e')))
+            string_of_typ rt ^ " in " ^ string_of_expr ex in
+          let (ty, e') = check_assign_null e lt err
+          (* let (rt, e') = expr e in
+          let rt' = check_assign lt rt err in
+          if e' = (SNullPtr Null) then 
+            let e_null = (SNullPtr rt') in (rt', SAssign(var, (rt', e_null)))
+          else (rt', SAssign(var, (rt, e'))) *)
+          in (ty, SAssign(var, (ty, e')))
 
       | DecAssn(ty, var, e) as decassgn ->
         ignore (check_bind tbl (ty, var));
-        let (rt, e') = expr e in
+        let (rt, _) = expr e in
         let err = "illegal assignment " ^ string_of_typ ty ^ " = " ^ 
-            string_of_typ rt ^ " in " ^ string_of_expr decassgn
-          in (check_assign ty rt err, SDecAssn(ty, var, (rt, e')))
+            string_of_typ rt ^ " in " ^ string_of_expr decassgn in
+        let (ty, e') = check_assign_null e ty err
+        (* let (rt, e') = expr e in
+        let rt' = check_assign ty rt err in
+        if e' = (SNullPtr Null) then 
+          let e_null = (SNullPtr rt') in (rt', SDecAssn(ty, var, (rt', e_null)))
+        else (rt', SDecAssn(ty, var, (rt, e'))) *)
+        in (ty, SDecAssn(ty, var, (ty, e')))
 
       | Unop(op, e) as ex -> 
           let (t, e') = expr e in
@@ -289,10 +317,10 @@ let check (classes, functions) =
             raise (Failure ("expecting " ^ string_of_int param_length ^ 
                             " arguments in " ^ string_of_expr call))
           else let check_call (ft, _) e = 
-            let (et, e') = expr e in 
+            let (et, _) = expr e in 
             let err = "illegal argument found " ^ string_of_typ et ^
               " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e
-            in (check_assign ft et err, e')
+            in (check_assign_null e ft err)
           in 
           let args' = List.map2 check_call fd.formals args
           in (fd.typ, SCall(fname, args'))
@@ -313,10 +341,12 @@ let check (classes, functions) =
           | _ -> raise (Failure (obj ^ " is not a class object in " ^ string_of_expr objassign))) 
         in
         let (field_ty, _) = find_field (cname, f) in
-        let (rt, e') = expr e in
+        let (rt, _) = expr e in
         let err = "illegal assignment " ^ string_of_typ field_ty ^ " = " ^ 
             string_of_typ rt ^ " in " ^ string_of_expr objassign in
-        (check_assign field_ty rt err, SObjAssign(obj, cname, f, (rt,e')))
+        let (ty, e') = check_assign_null e field_ty err 
+        in (ty, SObjAssign(obj, cname, f, (ty,e')))
+        (* (check_assign field_ty rt err, SObjAssign(obj, cname, f, (rt,e'))) *)
       | ArrayLit(el) as arraylit ->
         (* check if types of expr are consistent *)
           let ty_inconsistent_err = "inconsistent types in array " ^ string_of_expr arraylit in
@@ -350,11 +380,13 @@ let check (classes, functions) =
         (* check if variable is array type *)
         let v_ty = type_of_identifier v in
         let e_ty = is_arr_ty (v, v_ty) in
-        let (rt, e2') = expr e2 in
+        let (rt, _) = expr e2 in
         let err = "illegal assignment " ^ string_of_typ e_ty ^ " = " ^ 
             string_of_typ rt ^ " in " ^ string_of_expr arrassign in
-        (check_assign e_ty rt err, SArrAssign(v, (t,e1'), (rt,e2')))
-
+        let (ty, e2') = check_assign_null e2 e_ty err
+        in (ty, SArrAssign(v, (t,e1'), (ty,e2')))
+        (* (check_assign e_ty rt err, SArrAssign(v, (t,e1'), (rt,e2'))) *)
+      )
     in
 
     let check_bool_expr e = 

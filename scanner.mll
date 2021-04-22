@@ -46,6 +46,8 @@ rule token = parse
 | "[]"     { ARRAY }
 | "class"  { CLASS }
 | "."      { DOT }
+| "Null"   { NULL }
+(* | ":"      { EXTEND } *)
 | digits as lxm { INT_LIT(int_of_string lxm) }
 | digits '.'  digit* ( ['e' 'E'] ['+' '-']? digits )? as lxm { DOUBLE_LIT(lxm) }
 | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']*     as lxm { VARIABLE(lxm) }

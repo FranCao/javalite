@@ -81,6 +81,14 @@ let translate (classes, functions) =
     snd (List.hd (List.filter (fun (n, _) -> n = fname) f_lst_ind))
   in
 
+  let class_tbl = StringHash.create 10 in
+  let find_struct cls = 
+    try StringHash.find class_tbl cls
+    with Not_found -> 
+      let cls_struct = L.named_struct_type context cls in
+      StringHash.add class_tbl cls cls_struct; cls_struct
+  
+  in
   (* Return the LLVM type for a MicroC type *)
   let rec ltype_of_typ = function
       A.Int    -> i32_t
@@ -89,12 +97,13 @@ let translate (classes, functions) =
     | A.Void   -> void_t
     | A.String -> string_t
     | A.Arr(ty) -> L.pointer_type (ltype_of_typ ty)
-    | A.Object(cls) -> 
-      let cls_typ =
+    | A.Object(cls) -> L.pointer_type (find_struct cls)
+      (* L.pointer_type (L.named_struct_type context cls) *)
+      (* let cls_typ =
         let types = find_field_typs cls in
         let ll_typs = List.map ltype_of_typ types in
         L.struct_type context (Array.of_list ll_typs)
-      in L.pointer_type cls_typ
+      in L.pointer_type cls_typ *)
     | _        -> raise (Failure "Unmatched LLVM type in ltype_of_typ")
   in
   
@@ -181,7 +190,7 @@ let translate (classes, functions) =
     (* Construct a hash table for function formals and locals
        add all the formals first *)
     let tbl = StringHash.create 10 in
-    let formal_tbl = StringHash.create 10 in
+    let formal_tbl = StringHash.create 5 in
       let add_formal tbl (t, n) p = 
         L.set_value_name n p;
         let local = L.build_malloc (ltype_of_typ t) n builder in
@@ -228,6 +237,7 @@ let translate (classes, functions) =
                                     else A.Int
       | SUnop(_, (_, e_x)) -> find_type e_x
       | SNoexpr        -> raise (Failure "Unmatched NoExpr")
+      | SNullPtr _ -> A.String 
       | SCall(f, _) -> let (_, fdecl) = StringMap.find f function_decls in 
                             (match fdecl.styp with
                               A.Void -> raise (Failure "Cannot print void")
@@ -269,10 +279,13 @@ let translate (classes, functions) =
         in List.iteri store_elt elts;
         arr_ptr
       | SConstruct (cname, args) ->
-        let obj_ty = ltype_of_typ (A.Object(cname)) in 
+        (* let obj_ty = ltype_of_typ (A.Object(cname)) in  *)
+        let obj_ty = find_struct cname in
+        let fields' = List.map (fun ty -> ltype_of_typ ty) (find_field_typs cname) in
+        let _ = L.struct_set_body obj_ty (Array.of_list fields') false in
         let obj_alloca = L.build_malloc obj_ty "constrObj" builder in
         (* bitcast *)
-        let obj_ptr = L.build_pointercast obj_alloca obj_ty "constrPtr" builder in
+        let obj_ptr = L.build_pointercast obj_alloca (L.pointer_type obj_ty) "constrPtr" builder in
         (* store all fields *)
         let store_field (fname, e) =
           let f_val = expr builder e in
@@ -309,6 +322,7 @@ let translate (classes, functions) =
         let f_ptr = L.build_struct_gep obj ind f builder in
         L.build_store f_val f_ptr builder
       | SNoexpr     -> L.const_int i32_t 0
+      | SNullPtr t -> L.const_pointer_null (ltype_of_typ t)
       | SVar s       -> L.build_load (lookup s) s builder
       | SAssign (s, e) -> let e' = expr builder e in
                           ignore(L.build_store e' (lookup s) builder); e'

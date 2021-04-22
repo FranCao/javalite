@@ -10,6 +10,7 @@ open Ast
 %token INT BOOL DOUBLE VOID STRING 
 %token ARRAY
 %token CLASS DOT
+%token NULL
 
 %token <int> INT_LIT
 %token <bool> BOOL_LIT
@@ -134,6 +135,7 @@ expr:
   | VARIABLE DOT VARIABLE ASSIGN expr   { ObjAssign($1, $3, $5) }
   /* VARIABLE DECLAREATION */
   | typ VARIABLE ASSIGN expr { DecAssn($1, $2, $4) }
+  | NULL { NullPtr(Null) }
 
 
 args_opt:

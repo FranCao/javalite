@@ -5,7 +5,7 @@ type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
 
 type uop = Neg | Not
 
-type typ = Int | Bool | Double | Void | String | Arr of typ | Object of string | Any
+type typ = Int | Bool | Double | Void | String | Arr of typ | Object of string | Any | Null
 
 type bind = typ * string
 
@@ -26,6 +26,7 @@ type expr =
   | ObjAssign of string * string * expr
   | Construct of string * (string * expr) list
   | DecAssn of typ * string * expr
+  | NullPtr of typ
   | Noexpr
 
 type stmt =
@@ -78,6 +79,7 @@ let rec string_of_typ = function
   | Void -> "void"
   | String -> "string"
   | Any -> "any"
+  | Null -> "null"
   | Arr(t) -> string_of_typ t ^ "[]"
   | Object(s) -> "class " ^ s
 
@@ -102,6 +104,7 @@ let rec string_of_expr = function
   | ObjAssign(s1, s2, e) -> s1 ^ "." ^ s2 ^ " = " ^ string_of_expr e
   | Construct(s, _) -> "Constructor " ^ s
   | DecAssn(t, s, e) -> string_of_typ t ^ " " ^ s ^ " = " ^ string_of_expr e
+  | NullPtr(t) -> string_of_typ t ^ " Null"
   | Noexpr -> ""
 
 let rec string_of_stmt = function
