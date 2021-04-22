@@ -1,8 +1,5 @@
-int main()
-{
-    string c = "Hello " + "FooFooDooDooBar";
-    print(c);
+string c = "Hello " + "FooFooDooDooBar";
+print(c);
 
-    c = "Foo " + "Bar";
-    print(c);
-}
+c = "Foo " + "Bar";
+print(c);

@@ -1,6 +1,3 @@
-int main()
-{
-  if (true) {
-    foo; /* Error: undeclared variable */
-  }
+if (true) {
+  foo; /* Error: undeclared variable */
 }

@@ -5,10 +5,6 @@ int gcd(int a, int b) {
   return a;
 }
 
-int main()
-{
-  print(gcd(14,21));
-  print(gcd(8,36));
-  print(gcd(99,121));
-  return 0;
-}
+print(gcd(14,21));
+print(gcd(8,36));
+print(gcd(99,121));

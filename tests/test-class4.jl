@@ -10,9 +10,7 @@ void updateComment(class Record r, string cmt) {
     r.comment = cmt;
 }
 
-int main() {
-    class Record rec = Record(0, 42, "added on Apr 10, 2021");
-    updateComment(rec, "updated on Apr 18, 2021");
-    string msg = concat("new comment: ", rec.comment);
-    print(msg);
-}
+class Record rec = Record(0, 42, "added on Apr 10, 2021");
+updateComment(rec, "updated on Apr 18, 2021");
+string msg = concat("new comment: ", rec.comment);
+print(msg);

@@ -1,4 +1,4 @@
-int main()
-{
-  return true; /* Should return int */
+int foo(){
+	return 12;
+	int a=2;
 }

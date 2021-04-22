@@ -4,9 +4,7 @@ int add(int a, int b)
   return c;
 }
 
-int main()
-{
-  int d = add(52, 10);
-  print(d);
-  return 0;
-}
+
+int d = add(52, 10);
+print(d);
+

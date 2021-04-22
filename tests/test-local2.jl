@@ -5,7 +5,4 @@ int foo(int a, bool b)
   return c + 10;
 }
 
-int main() {
- print(foo(37, false));
- return 0;
-}
+print(foo(37, false));

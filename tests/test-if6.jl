@@ -9,9 +9,7 @@ int cond(bool b)
   return x;
 }
 
-int main()
-{
- print(cond(true));
- print(cond(false));
- return 0;
-}
+
+print(cond(true));
+print(cond(false));
+

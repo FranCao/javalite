@@ -19,7 +19,7 @@ module StringHash = Hashtbl.Make(HashtblString);;
 
    Check each global variable, then check each function *)
 
-let check (classes, functions) =
+let check (statements, classes, functions) =
 
   (* Verify a list of bindings has no void types or duplicate names *)
   let check_binds (kind : string) (binds : bind list) =
@@ -151,6 +151,15 @@ let check (classes, functions) =
       body = [] } built_in_decls
    in
 
+   let main_decl = 
+    {
+      typ = Int;
+      fname = "main";
+      formals = [];
+      locals = [];
+      body = List.rev statements }
+    in
+
   (* Add function name to symbol table *)
   let add_func map fd = 
     let built_in_err = "function " ^ fd.fname ^ " may not be defined"
@@ -184,6 +193,7 @@ let check (classes, functions) =
 
   let all_functions = List.fold_left (fun l c -> c::l) functions all_constructors in
 
+  let all_functions = main_decl :: all_functions in
   (* Collect all function names into one symbol table *)
   let function_decls = List.fold_left add_func built_in_decls all_functions
   in
@@ -404,8 +414,10 @@ let check (classes, functions) =
 	      SFor(e1', check_bool_expr e2, expr e3, check_stmt st)
       | While(p, s) -> SWhile(check_bool_expr p, check_stmt s)
       | Return e -> let (t, e') = expr e in
-        if t = func.typ then SReturn (t, e') 
-        else raise (
+        if "main" = func.fname then
+        raise (Failure("expected no return statement in outer body")) else
+        if t = func.typ then SReturn (t, e') else 
+        raise (
 	  Failure ("return gives " ^ string_of_typ t ^ " expected " ^
 		   string_of_typ func.typ ^ " in " ^ string_of_expr e))
 	    

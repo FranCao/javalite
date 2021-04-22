@@ -36,15 +36,15 @@ open Ast
 program:
   decls EOF { $1 }
 
-decls:
-   /* nothing */ { ([], [])               }
+/* decls:
+         { ([], [])               }
  | decls cdecl { (($2 :: fst $1), snd $1) }
- | decls fdecl { (fst $1, ($2 :: snd $1)) }
-// decls:
-//    /* nothing */ { ([], [], []) }
-//  | decls vdecl { let (vdecl, cdecl, fdecl) = $1 in ($2::vdecl, cdecl, fdecl) }
-//  | decls cdecl { let (vdecl, cdecl, fdecl) = $1 in (vdecl, $2::cdecl, fdecl) }
-//  | decls fdecl { let (vdecl, cdecl, fdecl) = $1 in (vdecl, cdecl, $2::fdecl) }
+ | decls fdecl { (fst $1, ($2 :: snd $1)) } */
+decls:
+    /* nothing */ { ([], [], []) }
+  | decls stmt { let (stmt, cdecl, fdecl) = $1 in ($2::stmt, cdecl, fdecl) }
+  | decls cdecl { let (stmt, cdecl, fdecl) = $1 in (stmt, $2::cdecl, fdecl) }
+  | decls fdecl { let (stmt, cdecl, fdecl) = $1 in (stmt, cdecl, $2::fdecl) }
 
 
 cdecl:
@@ -60,6 +60,10 @@ fdecl:
 	 formals = List.rev $4;
 	 locals = [];
 	 body = List.rev $7 } }
+
+/*
+sdecl:
+    stmt_list     { $1 } */
 
 formals_opt:
     /* nothing */ { [] }

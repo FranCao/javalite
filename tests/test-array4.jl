@@ -4,14 +4,12 @@ void addOne(int[] arr, int len) {
     }
 }
 
-int main() {
-    int[] intArr = [1,2,3];
-    print(intArr[0]);
-    print(intArr[1]);
-    print(intArr[2]);
-    addOne(intArr, 3);
-    print(intArr[0]);
-    print(intArr[1]);
-    print(intArr[2]);
-    return 0;
-}
+
+int[] intArr = [1,2,3];
+print(intArr[0]);
+print(intArr[1]);
+print(intArr[2]);
+addOne(intArr, 3);
+print(intArr[0]);
+print(intArr[1]);
+print(intArr[2]);

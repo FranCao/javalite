@@ -6,8 +6,5 @@ void printem(int a, int b, int c, int d)
   print(d);
 }
 
-int main()
-{
-  printem(42,17,192,8);
-  return 0;
-}
+
+printem(42,17,192,8);
