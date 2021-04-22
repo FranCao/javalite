@@ -1,4 +1,3 @@
-
 int[] intArr = [1, 3, 5, 7];
 int i = 0;
 int j = 0;

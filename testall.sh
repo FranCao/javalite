@@ -94,7 +94,7 @@ Check() {
     generatedfiles="$generatedfiles ${basename}.ll ${basename}.s ${basename}.exe ${basename}.out" &&
     Run "$JAVALITE" "$1" ">" "${basename}.ll" &&
     Run "$LLC" "-relocation-model=pic" "${basename}.ll" ">" "${basename}.s" &&
-    Run "$CC" "-o" "${basename}.exe" "${basename}.s" "stringfuncs.o" &&
+    Run "$CC" "-o" "${basename}.exe" "${basename}.s" "stringfuncs.o" "arrayfuncs.o" &&
     Run "./${basename}.exe" > "${basename}.out" &&
     Compare ${basename}.out ${reffile}.out ${basename}.diff
 
@@ -170,6 +170,13 @@ if [ ! -f stringfuncs.o ]
 then
     echo "Could not find stringfuncs.o"
     echo "Try \"make stringfuncs.o\""
+    exit 1
+fi
+
+if [ ! -f arrayfuncs.o ]
+then
+    echo "Could not find arrayfuncs.o"
+    echo "Try \"make arrayfuncs.o\""
     exit 1
 fi
 

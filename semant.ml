@@ -151,6 +151,15 @@ let check (statements, classes, functions) =
       body = [] } built_in_decls
    in
 
+   let built_in_decls =
+    StringMap.add "length" {
+      typ = Int;
+      fname = "len";
+      formals = [(Any, "arr")];
+      locals = [];
+      body = [] } built_in_decls
+   in
+
   (* declare main function with all statements *)
   let main_decl = 
     {
@@ -311,6 +320,9 @@ let check (statements, classes, functions) =
           if List.length args != param_length then
             raise (Failure ("expecting " ^ string_of_int param_length ^ 
                             " arguments in " ^ string_of_expr call))
+          (* Ignore types for array functions *)
+
+
           else let check_call (ft, _) e = 
             let (et, _) = expr e in 
             let err = "illegal argument found " ^ string_of_typ et ^
@@ -319,6 +331,7 @@ let check (statements, classes, functions) =
           in 
           let args' = List.map2 check_call fd.formals args
           in (fd.typ, SCall(fname, args'))
+
       | ObjAccess(obj, f) as objaccess ->
         let cname = 
           let obj_ty = type_of_identifier obj in

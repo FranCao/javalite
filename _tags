@@ -6,3 +6,6 @@ true : warn(+a-4)
 
 # Instruct ocamlbuild to ignore the "stringfuncs.o" file when it's building
 "stringfuncs.o": not_hygienic
+
+# Instruct ocamlbuild to ignore the "arrayfuncs.o" file when it's building
+"arrayfuncs.o": not_hygienic

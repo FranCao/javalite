@@ -8,7 +8,7 @@ test : all testall.sh
 # to test linking external code
 
 .PHONY : all
-all : javalite.native stringfuncs.o
+all : javalite.native stringfuncs.o arrayfuncs.o
 
 # "make javalite.native" compiles the compiler
 #
@@ -36,6 +36,10 @@ cleanup :
 # Testing the "string" example
 stringfuncs : stringfuncs.c
 	cc -o string -DBUILD_TEST stringfuncs.c
+
+# Testing the "array" example
+stringfuncs : arrayfuncs.c
+	cc -o string -DBUILD_TEST arrayfuncs.c
 
 # Building the tarball
 
