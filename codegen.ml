@@ -98,12 +98,6 @@ let translate (classes, functions) =
     | A.String -> string_t
     | A.Arr(ty) -> L.pointer_type (ltype_of_typ ty)
     | A.Object(cls) -> L.pointer_type (find_struct cls)
-      (* L.pointer_type (L.named_struct_type context cls) *)
-      (* let cls_typ =
-        let types = find_field_typs cls in
-        let ll_typs = List.map ltype_of_typ types in
-        L.struct_type context (Array.of_list ll_typs)
-      in L.pointer_type cls_typ *)
     | _        -> raise (Failure "Unmatched LLVM type in ltype_of_typ")
   in
   
@@ -370,6 +364,15 @@ let translate (classes, functions) =
         | _ -> raise (Failure "internal error: cannot perform this operation on string")
         ) s1 s2 "strcmp" builder
       )
+
+      (* object Null equality *)
+      | SBinop((A.Object(c),_ ) as e1, op, _) -> 
+        let obj = expr builder e1 in
+        (match op with 
+          A.Equal -> L.build_is_null
+        | A.Neq -> L.build_is_not_null
+        | _ -> raise (Failure "internal error: cannot perform this operation on object"))
+        obj "objcmp" builder
 
       | SBinop (e1, op, e2) ->
 	  let e1' = expr builder e1

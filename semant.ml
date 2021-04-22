@@ -151,7 +151,8 @@ let check (statements, classes, functions) =
       body = [] } built_in_decls
    in
 
-   let main_decl = 
+  (* declare main function with all statements *)
+  let main_decl = 
     {
       typ = Int;
       fname = "main";
@@ -159,6 +160,7 @@ let check (statements, classes, functions) =
       locals = [];
       body = List.rev statements }
     in
+  let functions = main_decl :: functions in
 
   (* Add function name to symbol table *)
   let add_func map fd = 
@@ -193,7 +195,6 @@ let check (statements, classes, functions) =
 
   let all_functions = List.fold_left (fun l c -> c::l) functions all_constructors in
 
-  let all_functions = main_decl :: all_functions in
   (* Collect all function names into one symbol table *)
   let function_decls = List.fold_left add_func built_in_decls all_functions
   in
@@ -213,13 +214,6 @@ let check (statements, classes, functions) =
     let tbl = StringHash.create 10 in
     let formal_tbl = StringHash.create 5 in
 
-    (* Raise an exception if the given rvalue type cannot be assigned to
-       the given lvalue type *)
-    (* let check_assign lvaluet rvaluet err =
-      if lvaluet = Any then rvaluet else
-       if lvaluet = rvaluet then lvaluet else raise (Failure err)
-    in    *)
-
     let check_assign lvaluet rvaluet err =
       if lvaluet = Any then rvaluet else
         if lvaluet = rvaluet then lvaluet else
@@ -235,7 +229,6 @@ let check (statements, classes, functions) =
 
     (* Return a variable from our local symbol table *)
     let type_of_identifier s =
-      (* try StringMap.find s symbols *)
       try StringHash.find tbl s
       with Not_found -> 
         try StringHash.find formal_tbl s
@@ -272,11 +265,6 @@ let check (statements, classes, functions) =
           let err = "illegal assignment " ^ string_of_typ lt ^ " = " ^ 
             string_of_typ rt ^ " in " ^ string_of_expr ex in
           let (ty, e') = check_assign_null e lt err
-          (* let (rt, e') = expr e in
-          let rt' = check_assign lt rt err in
-          if e' = (SNullPtr Null) then 
-            let e_null = (SNullPtr rt') in (rt', SAssign(var, (rt', e_null)))
-          else (rt', SAssign(var, (rt, e'))) *)
           in (ty, SAssign(var, (ty, e')))
 
       | DecAssn(ty, var, e) as decassgn ->
@@ -285,11 +273,6 @@ let check (statements, classes, functions) =
         let err = "illegal assignment " ^ string_of_typ ty ^ " = " ^ 
             string_of_typ rt ^ " in " ^ string_of_expr decassgn in
         let (ty, e') = check_assign_null e ty err
-        (* let (rt, e') = expr e in
-        let rt' = check_assign ty rt err in
-        if e' = (SNullPtr Null) then 
-          let e_null = (SNullPtr rt') in (rt', SDecAssn(ty, var, (rt', e_null)))
-        else (rt', SDecAssn(ty, var, (rt, e'))) *)
         in (ty, SDecAssn(ty, var, (ty, e')))
 
       | Unop(op, e) as ex -> 
@@ -311,6 +294,8 @@ let check (statements, classes, functions) =
             Add | Sub | Mult | Div when same && t1 = Int   -> Int
           | Add | Sub | Mult | Div when same && t1 = Double -> Double
           | Equal | Neq            when same               -> Bool
+          (* special case for null *)
+          | Equal | Neq when (t2 = Null) -> Bool
           | Less | Leq | Greater | Geq
                      when same && (t1 = Int || t1 = Double || t1 = String) -> Bool
           | And | Or when same && t1 = Bool -> Bool
@@ -356,7 +341,6 @@ let check (statements, classes, functions) =
             string_of_typ rt ^ " in " ^ string_of_expr objassign in
         let (ty, e') = check_assign_null e field_ty err 
         in (ty, SObjAssign(obj, cname, f, (ty,e')))
-        (* (check_assign field_ty rt err, SObjAssign(obj, cname, f, (rt,e'))) *)
       | ArrayLit(el) as arraylit ->
         (* check if types of expr are consistent *)
           let ty_inconsistent_err = "inconsistent types in array " ^ string_of_expr arraylit in
@@ -395,7 +379,6 @@ let check (statements, classes, functions) =
             string_of_typ rt ^ " in " ^ string_of_expr arrassign in
         let (ty, e2') = check_assign_null e2 e_ty err
         in (ty, SArrAssign(v, (t,e1'), (ty,e2')))
-        (* (check_assign e_ty rt err, SArrAssign(v, (t,e1'), (rt,e2'))) *)
       )
     in
 

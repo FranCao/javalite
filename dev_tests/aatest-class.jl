@@ -4,14 +4,18 @@ class square {
     class square friend;
 }
 
-int main() {
-    //class square sq = Null;
-    class square sq = square("fst_sq", 42, Null);
-    class square sq2 = square("fst_sq", 42, sq);
-    int s = sq.side;
-    string n = sq.name;
-    sq2.friend = Null;
-    print(s);
-    print(n);
-    return 0;
+void so() {
+//class square sq = Null;
+class square sq = square("fst_sq", 42, Null);
+class square sq2 = square("fst_sq", 42, sq);
+int s = sq.side;
+string n = sq.name;
+sq2.friend = Null;
+print(s);
+print(n);
 }
+class square sq = square("fst_sq", 42, Null);
+class square sq2 = square("fst_sq", 42, sq);
+int s = sq.side;
+
+//so();

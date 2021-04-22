@@ -20,7 +20,8 @@ int main() {
     int s;
     char *n;
     sq = square_constructor("fst_square", 42, NULL);
-    s = sq->side;
-    n = sq->name;
+    if (sq->friend == NULL) printf("%d", 1);
+    // s = sq->side;
+    // n = sq->name;
     return 0;
 }
