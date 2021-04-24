@@ -1,0 +1,14 @@
+version: 2.0
+jobs:
+  build:
+    docker:
+      - image: columbiasedwards/plt
+        options : --rm -it -w=/home/microc
+    steps:
+      - checkout
+      - run:
+          name: "Test"
+          command: |
+            pwd
+            ls
+            make
