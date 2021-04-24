@@ -31,7 +31,7 @@ clean :
 .PHONY : cleanup
 cleanup :
 	ocamlbuild -clean
-	rm -rf testall.log ocamlllvm *.diff *.exe *.ll *.s *.out *.err *.o
+	rm -rf testall.log ocamlllvm *.diff *.exe *.ll *.s *.out *.err
 
 # Testing the "string" example
 stringfuncs : stringfuncs.c

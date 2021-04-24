@@ -96,6 +96,7 @@ let translate (classes, functions) =
     | A.Double -> double_t
     | A.Void   -> void_t
     | A.String -> string_t
+    (* | A.Arr(ty,l) -> L.array_type (ltype_of_typ ty) l *)
     | A.Arr(ty,_) -> L.pointer_type (ltype_of_typ ty)
     | A.Object(cls) -> L.pointer_type (find_struct cls)
     | _        -> raise (Failure "Unmatched LLVM type in ltype_of_typ")
@@ -279,6 +280,14 @@ let translate (classes, functions) =
       | SStrLit s -> L.build_global_stringptr s "str" builder
       | SArrayLit arr   -> 
         (* arr: sexpr list = typ * sx list *)
+        (* let (fst_t, _) = List.hd arr in 
+        let e_ty = ltype_of_typ (A.Arr(fst_t, (List.length arr))) in
+        let arr_ty = L.array_type e_ty (List.length arr) in
+        (* store all elements *)
+        let elts = List.map (expr builder) arr in
+        let elts_arr = Array.of_list elts in
+        L.const_array arr_ty elts_arr *)
+
         let len = L.const_int i32_t (List.length arr) in
         let (fst_t, _) = List.hd arr in 
         let ty = ltype_of_typ (A.Arr(fst_t, (List.length arr))) in
@@ -294,6 +303,7 @@ let translate (classes, functions) =
           ignore(L.build_store elt elt_ptr builder)
         in List.iteri store_elt elts;
         arr_ptr
+        
       | SConstruct (cname, args) ->
         (* let obj_ty = ltype_of_typ (A.Object(cname)) in  *)
         let obj_ty = find_struct cname in
@@ -310,9 +320,21 @@ let translate (classes, functions) =
             ignore(L.build_store f_val f_ptr builder)
         in List.iter store_field args; obj_ptr
       | SArrayAccess (s, e)  -> 
+        (* let ind = expr builder e in
+        let (ty, _) = e in
+        let pos = L.build_add ind (L.const_int i32_t 0) "accpos" builder in
+        let arr = expr builder (ty, (SVar s)) in
+        let arr_ptr = L.build_load arr "arrld" builder in
+        let elt = L.build_in_bounds_gep arr_ptr [| pos |] "acceltptr" builder in
+        L.build_load elt "accelt" builder *)
+        (* L.const_extractelement arr_ptr pos *)
+        (* let arr_ty = L.type_of arr in
+        let arr_ptr = L.build_pointercast arr arr_ty "arrptr" builder in
+        let elt = L.build_in_bounds_gep arr_ptr [| pos |] "acceltptr" builder in
+        L.build_load elt "accelt" builder *)
+
         let ind = expr builder e in
         let (ty, _) = e in
-        (* increment index by one to get actual ptr position *)
         let pos = L.build_add ind (L.const_int i32_t 0) "accpos" builder in
         let arr = expr builder (ty, (SVar s)) in
         let elt = L.build_gep arr [| pos |] "acceltptr" builder in
@@ -388,7 +410,7 @@ let translate (classes, functions) =
       )
 
       (* object Null equality *)
-      | SBinop((A.Object(c),_ ) as e1, op, _) -> 
+      | SBinop((A.Object(_),_ ) as e1, op, _) -> 
         let obj = expr builder e1 in
         (match op with 
           A.Equal -> L.build_is_null

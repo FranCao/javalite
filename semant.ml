@@ -273,6 +273,10 @@ let check (statements, classes, functions) =
           let err = "illegal assignment " ^ string_of_typ lt ^ " = " ^ 
             string_of_typ rt ^ " in " ^ string_of_expr ex in
           let (ty, e') = check_assign_null e lt err
+          (* update array size *)
+          (* in let _ = (match ty with 
+            Arr _ -> StringHash.replace tbl var ty
+          | _ -> ignore 1) *)
           in (ty, SAssign(var, (ty, e')))
 
       | DecAssn(ty, var, e) as decassgn ->
@@ -281,6 +285,10 @@ let check (statements, classes, functions) =
         let err = "illegal assignment " ^ string_of_typ ty ^ " = " ^ 
             string_of_typ rt ^ " in " ^ string_of_expr decassgn in
         let (ty, e') = check_assign_null e ty err
+        (* update array size *)
+        (* in let _ = (match ty with 
+            Arr _ -> StringHash.replace tbl var ty
+          | _ -> ignore 1) *)
         in (ty, SDecAssn(ty, var, (ty, e')))
 
       | Unop(op, e) as ex -> 
