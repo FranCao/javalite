@@ -1,1 +1,1 @@
-Fatal error: exception Failure("illegal assignment int[] = string[] in int[] nums = ["h","e","l","l","o"]")
+Fatal error: exception Failure("illegal assignment int[0] = string[5] in int[0] nums = ["h","e","l","l","o"]")

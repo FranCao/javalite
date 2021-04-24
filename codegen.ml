@@ -96,7 +96,7 @@ let translate (classes, functions) =
     | A.Double -> double_t
     | A.Void   -> void_t
     | A.String -> string_t
-    | A.Arr(ty) -> L.pointer_type (ltype_of_typ ty)
+    | A.Arr(ty,_) -> L.pointer_type (ltype_of_typ ty)
     | A.Object(cls) -> L.pointer_type (find_struct cls)
     | _        -> raise (Failure "Unmatched LLVM type in ltype_of_typ")
   in
@@ -148,7 +148,7 @@ let translate (classes, functions) =
       L.declare_function "to_string" to_string_t the_module in
 
   let arraylen_t : L.lltype =
-      L.function_type i32_t [| L.pointer_type (ltype_of_typ A.Int) |] in
+      L.function_type i32_t [| L.pointer_type i32_t |] in
   let arraylen_func : L.llvalue =
       L.declare_function "length" arraylen_t the_module in
 
@@ -184,6 +184,21 @@ let translate (classes, functions) =
       | A.String  -> str_format_str 
       | _         -> raise (Failure "Invalid type")
     in
+(* 
+    let int_format_arrstart = L.build_global_stringptr "[%d" "fmt" builder
+    and float_format_arrstart = L.build_global_stringptr "[%g" "fmt" builder
+    and string_format_arrstart = L.build_global_stringptr "[%s" "fmt" builder
+    in
+
+    let int_format_arr = L.build_global_stringptr ", %d" "fmt" builder
+    and float_format_arr = L.build_global_stringptr ", %g" "fmt" builder
+    and string_format_arr = L.build_global_stringptr ", %s" "fmt" builder
+    in
+
+    let int_format_arrend = L.build_global_stringptr ", %d]\n" "fmt" builder
+    and float_format_arrend = L.build_global_stringptr ", %g]\n" "fmt" builder
+    and string_format_arrend = L.build_global_stringptr ", %s]\n" "fmt" builder
+    in *)
 
 
     (* Construct a hash table for function formals and locals
@@ -247,7 +262,9 @@ let translate (classes, functions) =
       | SObjAccess(_, c, f) -> 
         let f_lst = StringMap.find c class_ty_fields in
         fst (List.hd (List.filter (fun (_,n) -> n = f) f_lst))
-      | SArrayLit _      -> raise (Failure "SArrayLit not implemented")
+        (* todo *)
+      | SArrayLit (el)    ->  let (_, e_fst) = (List.nth el 0) in 
+            A.Arr (find_type e_fst, List.length el)
       | SConstruct _ -> raise (Failure "SConstruct cannot be printed")
       | SArrAssign _ -> raise (Failure "SArrAssign cannot be printed")
       | SObjAssign _ -> raise (Failure "SObjAssign cannot be printed")
@@ -264,7 +281,7 @@ let translate (classes, functions) =
         (* arr: sexpr list = typ * sx list *)
         let len = L.const_int i32_t (List.length arr) in
         let (fst_t, _) = List.hd arr in 
-        let ty = ltype_of_typ (A.Arr fst_t) in
+        let ty = ltype_of_typ (A.Arr(fst_t, (List.length arr))) in
         (* allocate memory for array *)
         let arr_alloca = L.build_array_malloc ty len "arr" builder in
         (* bitcast *)
@@ -402,11 +419,13 @@ let translate (classes, functions) =
 	    A.Neg when t = A.Double -> L.build_fneg 
 	  | A.Neg                  -> L.build_neg
     | A.Not                  -> L.build_not) e' "tmp" builder
+
       | SCall ("print", [e]) ->
         let (_, e_x) = e in
         let e_type = find_type e_x in
 	      L.build_call printf_func [| (find_str_typ e_type) ; (expr builder e) |]
 	    "printf" builder
+
       | SCall ("reverse", [e]) ->
 	  L.build_call reversestring_func [| (expr builder e) |] "reverse" builder
       | SCall ("upper", [e]) ->

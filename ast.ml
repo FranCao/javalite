@@ -5,7 +5,7 @@ type op = Add | Sub | Mult | Div | Equal | Neq | Less | Leq | Greater | Geq |
 
 type uop = Neg | Not
 
-type typ = Int | Bool | Double | Void | String | Arr of typ | Object of string | Any | Null
+type typ = Int | Bool | Double | Void | String | Arr of (typ * int) | Object of string | Any | Null
 
 type bind = typ * string
 
@@ -80,7 +80,7 @@ let rec string_of_typ = function
   | String -> "string"
   | Any -> "any"
   | Null -> "null"
-  | Arr(t) -> string_of_typ t ^ "[]"
+  | Arr(t, l) -> string_of_typ t ^ "[" ^ string_of_int l ^ "]"
   | Object(s) -> "class " ^ s
 
 let rec string_of_expr = function

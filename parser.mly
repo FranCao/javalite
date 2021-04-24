@@ -79,7 +79,7 @@ typ:
   | DOUBLE { Double }
   | VOID  { Void  }
   | STRING { String }
-  | typ ARRAY { Arr($1) }
+  | typ ARRAY { Arr($1, 0) }
   | CLASS VARIABLE { Object($2) }
 
 vdecl_list:

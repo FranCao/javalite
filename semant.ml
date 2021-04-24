@@ -40,10 +40,6 @@ let check (statements, classes, functions) =
       StringHash.add tbl n t; tbl
   in
 
-  (**** Check global variables ****)
-
-  (* check_binds "global" globals; *)
-
   (**** Check classes ****)
 
   (* Add class name to symbol table *)
@@ -228,6 +224,9 @@ let check (statements, classes, functions) =
         if lvaluet = rvaluet then lvaluet else
           (match lvaluet with
             Object(_) -> if rvaluet = Null then lvaluet else raise (Failure err)
+          | Arr(t,_) -> (match rvaluet with 
+                          Arr(t_r, _) -> if t = t_r then rvaluet else raise (Failure err)
+                        | _ -> raise (Failure err))
           | _ -> raise (Failure err))
     in
 
@@ -246,7 +245,7 @@ let check (statements, classes, functions) =
 
     (* check if of array type, return element type *)
     let is_arr_ty (v, ty) = match ty with 
-        Arr(_ as t) -> 
+        Arr(t,_) -> 
           if t = Void then raise (Failure ("void type array " ^ v ^ " is not allowed")) 
           else t
       | _ -> raise (Failure ("cannot access an element in variable " ^ v ^ " of type " ^ string_of_typ ty))
@@ -365,7 +364,7 @@ let check (statements, classes, functions) =
           in if arr_ty_len != List.length el 
             then raise (Failure ty_inconsistent_err)
           (* determine arr type *)
-          else let arr_ty = Arr(fst_ty)
+          else let arr_ty = Arr(fst_ty, arr_ty_len)
         in (arr_ty, SArrayLit(arr_ty_e))
       | Construct(cname, args) ->
         let args' = List.map (fun (s,e) -> (s, (expr e))) args

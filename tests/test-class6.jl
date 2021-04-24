@@ -5,39 +5,39 @@ class Node {
 
 void push(class Node head, int data) {
     class Node n = head;
-    while (n.next != Null) {
+    while (n.next != null) {
         n = n.next;
     }
-    n.next = Node(data, Null);
+    n.next = Node(data, null);
 }
 
 int pop(class Node head) {
     class Node n = head.next;
     int data = head.data;
-    if (n == Null) {
-        head = Null;
+    if (n == null) {
+        head = null;
     } else {
         class Node prev = head;
-        while (n.next != Null) {
+        while (n.next != null) {
             n = n.next;
             prev = prev.next;
         }
         data = n.data;
-        prev.next = Null;
+        prev.next = null;
     }
     return data;
 }
 
 void printNodes(class Node head) {
     class Node n = head;
-    while (n.next != Null) {
+    while (n.next != null) {
         print(n.data);
         n = n.next;
     }
     print(n.data);
 }
 
-class Node head = Node(42, Null);
+class Node head = Node(42, null);
 printNodes(head);
 int[] dataArr = [3,4,5];
 push(head, dataArr[0]);

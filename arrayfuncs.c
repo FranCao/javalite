@@ -40,3 +40,22 @@ int length (void *arr)
 {
     return 4;
 }
+
+// int length (int *arr)
+// {
+//     int *parray = &(arr[0]);
+//     int len = sizeof(*parray)/sizeof(int);
+//     return len;
+//     // switch (type_id)
+//     // {
+//     //     case 0 :
+//     //         *(int*)arr sizeof;
+//     //         break;
+//     //     case 1 :
+//     //         *(bool*)arr ;
+//     //         break;
+//     //     case 2 :
+//     //         *(double*)arr ;
+//     //         break;
+//     // }
+// }
