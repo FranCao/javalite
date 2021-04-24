@@ -74,7 +74,7 @@ let string_of_uop = function
 
 let rec string_of_typ = function
     Int -> "int"
-  | Bool -> "boolean"
+  | Bool -> "bool"
   | Double -> "double"
   | Void -> "void"
   | String -> "string"
