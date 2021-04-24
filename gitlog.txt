@@ -1,0 +1,504 @@
+commit a7ff0c4284d99c82c901d0240714fbd7d4ce546d
+Author: Mateo Maturana <mateomaturana@yahoo.com>
+Date:   Sat Apr 24 11:25:40 2021 -0400
+
+    update bool -> boolean
+
+commit c95703154f3b2315f3ccb670bfb25193464ea451
+Author: Frances Cao <frances.te.cao@gmail.com>
+Date:   Sat Apr 24 00:24:35 2021 -0400
+
+    added some print array stuff, change arr layout, update null
+
+commit 5eea65c90d2a3f1c5914c1c6fc54a6b6e2e89760
+Author: Frances Cao <frances.te.cao@gmail.com>
+Date:   Thu Apr 22 17:39:09 2021 -0400
+
+    pieces of length for array
+
+commit cd8f383f357f7a0d4c2c638534385d2b3069a494
+Author: FranCao <frances.te.cao@gmail.com>
+Date:   Thu Apr 22 15:33:46 2021 -0400
+
+    cleanup
+
+commit 29e741924b0d487bd509f9ad244a9fe36ec6306c
+Author: HongfeiChenCU <hc3222@columbia.edu>
+Date:   Thu Apr 22 08:21:08 2021 +0000
+
+    linkedlist test added
+
+commit 777a2e23114ddf6d98db61e2a8b60ae6fea6bfb4
+Merge: cd6b094 f1e952e
+Author: HongfeiChenCU <hc3222@columbia.edu>
+Date:   Wed Apr 21 23:22:02 2021 -0700
+
+    Merge branch 'main' into hc-inheritance
+
+commit cd6b094715abaa03ecef7dfffa32145932620af3
+Author: HongfeiChenCU <hc3222@columbia.edu>
+Date:   Wed Apr 21 23:17:57 2021 -0700
+
+    recursive class and null pointer done
+
+commit f1e952e4b34cf0c8a8a48a7a224c436a3fa96700
+Author: Mateo Maturana <mateomaturana@yahoo.com>
+Date:   Wed Apr 21 18:02:20 2021 -0400
+
+    added return check to main in semant
+
+commit 43d0873a90726dd93b54fb3a36153e01a3cf0c83
+Author: 314pies <ian121363@gmail.com>
+Date:   Wed Apr 21 14:19:50 2021 -0700
+
+    remove test-array-func1, add fail-return1 test
+
+commit b013dd6747aca6fe4205b6f90fde3fc0000d6a46
+Merge: c150b0e a8d00d8
+Author: 314pies <ian121363@gmail.com>
+Date:   Wed Apr 21 16:54:17 2021 -0400
+
+    Merge pull request #2 from FranCao/functional
+    
+    Functional
+
+commit a8d00d8c5d14bff07a2c6a8c181ea4f52f38cd6e
+Author: 314pies <ian121363@gmail.com>
+Date:   Wed Apr 21 13:52:49 2021 -0700
+
+    Fixes duplicate functional declaration in test cases
+
+commit 86a733aaa2f1c4146c23b161b146f10ee5ddc392
+Author: Mateo Maturana <mateomaturana@yahoo.com>
+Date:   Wed Apr 21 15:56:49 2021 -0400
+
+    main fix done -- test cases need to be changed
+
+commit c150b0e5ecf8c66883c64889ed4890ab4e1ef7fb
+Merge: d13682f 118a270
+Author: Mateo Maturana <mateomaturana@yahoo.com>
+Date:   Wed Apr 21 13:08:40 2021 -0400
+
+    Merge branch 'main' of github.com:FranCao/javalite into main
+
+commit d13682fb5fbc96ba21b0bc1a07eb236fbe6a3368
+Author: Mateo Maturana <mateomaturana@yahoo.com>
+Date:   Wed Apr 21 13:08:34 2021 -0400
+
+    minor change to test-for1
+
+commit 118a270094844afc3ab53aa8f1a887a4bfa59c98
+Author: HongfeiChenCU <hc3222@columbia.edu>
+Date:   Tue Apr 20 22:10:58 2021 -0700
+
+    local hide formal updated
+
+commit 6b8db289e4fce10398d642f0873057c6e359b783
+Author: Mateo Maturana <mateomaturana@yahoo.com>
+Date:   Wed Apr 21 01:02:05 2021 -0400
+
+    fix tests, remove some, rename
+
+commit c45a9c3bec03fae95f77c5fc6f96b62e1a022198
+Author: Mateo Maturana <mateomaturana@yahoo.com>
+Date:   Tue Apr 20 23:26:07 2021 -0400
+
+    refactoring/fixing of tests + new arith tests
+
+commit 09308ae1f1aa31e422bc3eb5ca506c7f80c06b3c
+Author: Mateo Maturana <mateomaturana@yahoo.com>
+Date:   Tue Apr 20 22:07:30 2021 -0400
+
+    fixed Makefile, removed stringfuncs.o
+
+commit bc4d028dc5d333f8bc5d43b0e85031851d5f91d3
+Author: Mateo Maturana <mateomaturana@yahoo.com>
+Date:   Tue Apr 20 22:06:26 2021 -0400
+
+    added object files to clean target Makefile
+
+commit 26c8415223f1944e42a10501dfb1f33c46a4a6e1
+Author: Frances Cao <frances.te.cao@gmail.com>
+Date:   Tue Apr 20 19:09:06 2021 -0400
+
+    update tests, cleanup old files
+
+commit 7a6278e9facc35d4ea3ac188b42b140c2283f4f7
+Author: HongfeiChenCU <hc3222@columbia.edu>
+Date:   Tue Apr 20 13:49:49 2021 -0700
+
+    variable decl assign done; tests partially updated
+
+commit 60f2abfb52f0f2a26ff62777e2bd63a7cd97bfbb
+Author: HongfeiChenCU <hc3222@columbia.edu>
+Date:   Tue Apr 20 12:23:15 2021 -0700
+
+    still in progress
+
+commit 9d4f97f0d3a612e1d1a231d724d90d3fa27906ec
+Author: HongfeiChenCU <hc3222@columbia.edu>
+Date:   Tue Apr 20 10:39:15 2021 -0700
+
+    up to semant (remove extra)
+
+commit 131fe05d109210cad21617eb0425e047542d782e
+Author: HongfeiChenCU <hc3222@columbia.edu>
+Date:   Tue Apr 20 10:38:46 2021 -0700
+
+    up to semant
+
+commit bb14d66b5acf2578f39f0a0abb8ef494dbb6c670
+Merge: d58a198 b510aa8
+Author: HongfeiChenCU <hc3222@columbia.edu>
+Date:   Tue Apr 20 09:02:35 2021 -0700
+
+    Merge branch 'main' of https://github.com/FranCao/javalite into main
+
+commit d58a198ab64b6c4351e69f901d303bd7e1cce580
+Author: HongfeiChenCU <hc3222@columbia.edu>
+Date:   Tue Apr 20 09:02:18 2021 -0700
+
+    string binop done
+
+commit b510aa844210ccda421d3193b6e672f93abf3eab
+Merge: e4eb6cf b70a0fd
+Author: Frances Cao <frances.te.cao@gmail.com>
+Date:   Mon Apr 19 21:41:57 2021 -0400
+
+    resolve conflict
+
+commit e4eb6cf9818d3e9013b7b1cef87210e106499715
+Author: Frances Cao <frances.te.cao@gmail.com>
+Date:   Mon Apr 19 21:40:49 2021 -0400
+
+    start print array in codegen and semant, add test
+
+commit b70a0fd96c3399d068524ddf459d0d521a5b716f
+Author: 314pies <ian121363@gmail.com>
+Date:   Mon Apr 19 17:41:30 2021 -0700
+
+    Rename buildAndRun.sh and change its log file name
+
+commit 1db655421a19e18289a27d8298a375f35ea0fcc9
+Author: 314pies <ian121363@gmail.com>
+Date:   Mon Apr 19 17:36:36 2021 -0700
+
+    Add BuildAndRun.sh for simply build, execute and show the execution result of the source code file. For example: You can run './BuildAndRun.sh SampleCode1.jl'  and it will show the execution result of SampleCode1.jl
+
+commit aa492ec67a9c3979145819aa854b58fe61ccb4fe
+Author: 314pies <ian121363@gmail.com>
+Date:   Mon Apr 19 16:53:45 2021 -0700
+
+    Add (optional) representative source language program - counting sort
+
+commit badd72f7b972e1310cda7e28595b8e2237d0f38c
+Author: 314pies <ian121363@gmail.com>
+Date:   Mon Apr 19 16:14:35 2021 -0700
+
+    Add performence measurement testing code
+
+commit 8477bd4f62099db447646b6220e31abac8bef726
+Author: 314pies <ian121363@gmail.com>
+Date:   Mon Apr 19 15:54:27 2021 -0700
+
+    Add representative source language program - bubble sort
+
+commit 70abb26e2460bdd3c512ac1f035f357a4276442a
+Merge: 4e1867f a74452b
+Author: HongfeiChenCU <hc3222@columbia.edu>
+Date:   Sun Apr 18 23:16:34 2021 -0700
+
+    Merge branch 'hc-class' into main
+
+commit a74452bd6b44c9e745ee5ab3e4b735e109ed6711
+Author: HongfeiChenCU <hc3222@columbia.edu>
+Date:   Sun Apr 18 23:15:50 2021 -0700
+
+    class done
+
+commit 2925e93ddfaff0d20879bff53b09b230019980ea
+Author: HongfeiChenCU <hc3222@columbia.edu>
+Date:   Sun Apr 18 12:45:42 2021 -0700
+
+    class semant done
+
+commit 4e1867f0038ef5bfbafa7bba9c52092d354a3ee5
+Author: HongfeiChenCU <hc3222@columbia.edu>
+Date:   Sun Apr 18 10:46:09 2021 -0700
+
+    remove extra files commit by mistake
+
+commit 6876d88fd969477255fd712ee8c2e7b562178c1c
+Author: HongfeiChenCU <hc3222@columbia.edu>
+Date:   Sun Apr 18 10:42:35 2021 -0700
+
+    array mutation test case added for string[]
+
+commit fb6832d8fa3d91cd82078327d08b1281ed5c0d42
+Author: HongfeiChenCU <hc3222@columbia.edu>
+Date:   Sun Apr 18 10:31:46 2021 -0700
+
+    string mutation done
+
+commit de71fe27cd9e336f2a63be684b37f75c1cd6bc0f
+Author: HongfeiChenCU <hc3222@columbia.edu>
+Date:   Fri Apr 16 16:01:04 2021 -0700
+
+    string indexof fixed
+
+commit ce589b39600c4b80727cd15c4d6f199aca600a0c
+Merge: 5fe0ddf 784a98f
+Author: Frances Cao <frances.te.cao@gmail.com>
+Date:   Thu Apr 15 20:39:49 2021 -0400
+
+    Merge branch 'main' of github.com:FranCao/javalite into main
+
+commit 5fe0ddfecaebad72d85aa8d25bc722490d9ef656
+Author: Frances Cao <frances.te.cao@gmail.com>
+Date:   Thu Apr 15 20:39:42 2021 -0400
+
+    combine funcs, add concat, len, and indexof funcs for string
+
+commit 784a98f4e4ebfeee935c130f55bb2164d4e25a10
+Author: HongfeiChenCU <hc3222@columbia.edu>
+Date:   Thu Apr 15 15:49:17 2021 -0700
+
+    print for arrayaccess added
+
+commit 1922ed0e773974bc34abdfef7eb9d830b50abc4c
+Merge: 955689f bc6d10f
+Author: Frances Cao <frances.te.cao@gmail.com>
+Date:   Thu Apr 15 17:27:55 2021 -0400
+
+    Merge branch 'main' of github.com:FranCao/javalite into main
+
+commit 955689f14a95db3a45c0ac7460e1d9e8de445bb3
+Author: Frances Cao <frances.te.cao@gmail.com>
+Date:   Thu Apr 15 17:27:51 2021 -0400
+
+    concatenate built in functions to one file
+
+commit bc6d10f7d6aa1ce8601aea6d34e6653f0a7da0d0
+Author: HongfeiChenCU <hc3222@columbia.edu>
+Date:   Thu Apr 15 12:24:09 2021 -0700
+
+    small array fix
+
+commit 0344481221c28b92937dfd7fe3fbec7cc30efd38
+Author: HongfeiChenCU <hc3222@columbia.edu>
+Date:   Wed Apr 14 16:41:42 2021 -0700
+
+    array lit and access done
+
+commit cf08e0c2c31f15ec1d5172830bc781a27556b120
+Author: HongfeiChenCU <hc3222@columbia.edu>
+Date:   Wed Apr 14 15:48:02 2021 -0700
+
+    array basic done
+
+commit 528a48b65ca698caecab1e7db9d46c6e7f9d4dd9
+Author: Frances Cao <frances.te.cao@gmail.com>
+Date:   Sun Apr 11 19:30:00 2021 -0400
+
+    add string binop equals
+
+commit 09fad9a4c8942809ffb2bdbd3a81e88aab0f66b2
+Merge: 6bdb993 4565f0e
+Author: HongfeiChenCU <hc3222@columbia.edu>
+Date:   Sun Apr 11 16:12:06 2021 -0700
+
+    merge string binop
+
+commit 6bdb99309c0c8c24380aadb570a1e7a1cd1bfd22
+Author: HongfeiChenCU <hc3222@columbia.edu>
+Date:   Sun Apr 11 16:10:29 2021 -0700
+
+    string addition added
+
+commit 4565f0e4d3fb26a86a42b2812c0b595bb0b3688f
+Author: Frances Cao <frances.te.cao@gmail.com>
+Date:   Sun Apr 11 00:59:32 2021 -0400
+
+    minor print changes, add test for string binop
+
+commit f2910da50b94dd1ed7f3ba7ddc20614f50f98cff
+Merge: 61edc04 28dc68c
+Author: HongfeiChenCU <hc3222@columbia.edu>
+Date:   Fri Apr 9 23:25:38 2021 -0700
+
+    merged array changes
+
+commit 61edc04af63e3a6eb75da6e904991bb4293b6258
+Author: HongfeiChenCU <hc3222@columbia.edu>
+Date:   Sat Apr 10 06:18:32 2021 +0000
+
+    print done
+
+commit ce81a3a827bca3107bab07ad36ae1df2bd7a6e6c
+Author: HongfeiChenCU <hc3222@columbia.edu>
+Date:   Fri Apr 9 21:58:41 2021 -0700
+
+    print working except string and double
+
+commit aca4bb28c4e8b2799fc30df25886d7fc0439ecd6
+Author: Frances Cao <frances.te.cao@gmail.com>
+Date:   Fri Apr 9 00:34:44 2021 -0400
+
+    complete substring built-in function
+
+commit 01a20e573971a33abf28cb3cd075332415351c6e
+Author: Frances Cao <frances.te.cao@gmail.com>
+Date:   Thu Apr 8 20:54:38 2021 -0400
+
+    substring edits
+
+commit b578d1e86ccab755b6e5e5e9c2dbbb22e475f769
+Author: Frances Cao <frances.te.cao@gmail.com>
+Date:   Thu Apr 8 20:13:05 2021 -0400
+
+    add substring func
+
+commit 28dc68c56f7b47b126728903c526a48a912b94bd
+Author: HongfeiChenCU <hc3222@columbia.edu>
+Date:   Thu Apr 8 01:47:08 2021 -0700
+
+    allow 2d arrays
+
+commit f7c322d464d16a33ea9219e854f2b56e7ebf6274
+Merge: b7255e5 b8cdd73
+Author: Frances Cao <frances.te.cao@gmail.com>
+Date:   Wed Apr 7 21:34:48 2021 -0400
+
+    Merge branch 'main' of github.com:FranCao/javalite into main
+
+commit b7255e5d76082167e53e04552d4c02fae15c2280
+Author: Frances Cao <frances.te.cao@gmail.com>
+Date:   Wed Apr 7 21:34:36 2021 -0400
+
+    cleanup printbig
+
+commit b8cdd73554829c81562b578abdd7d018d26e0792
+Author: HongfeiChenCU <hc3222@columbia.edu>
+Date:   Wed Apr 7 18:26:32 2021 -0700
+
+    class part deleted
+
+commit 4f81c56468f7778f89a585c5dd58e856bedd8921
+Merge: e0789fc cfcc69f
+Author: Frances Cao <frances.te.cao@gmail.com>
+Date:   Wed Apr 7 21:00:03 2021 -0400
+
+    merge
+
+commit e0789fc12a3924d58bd32d574ab9d6bad0587329
+Author: Frances Cao <frances.te.cao@gmail.com>
+Date:   Wed Apr 7 20:56:45 2021 -0400
+
+    edit tests for print functions
+
+commit cfcc69fd883a91df10acbf142586baa96e0d6e20
+Merge: 677189f 1a291fe
+Author: HongfeiChenCU <hc3222@columbia.edu>
+Date:   Wed Apr 7 17:53:23 2021 -0700
+
+    Merge branch 'main' of https://github.com/FranCao/javalite into main
+
+commit 677189fa155ce6f96df9ef7d11e44456b8a2995a
+Merge: e498e6f 805c414
+Author: HongfeiChenCU <hc3222@columbia.edu>
+Date:   Wed Apr 7 17:27:59 2021 -0700
+
+    merge arr
+
+commit e498e6f6ad5ee5497f1bf32e1cb61c221cd87eb6
+Author: HongfeiChenCU <hc3222@columbia.edu>
+Date:   Mon Apr 5 21:38:56 2021 -0700
+
+    array access parser updated
+
+commit a2ecfec99cc19fa88873d5493507673bf070fe50
+Author: HongfeiChenCU <hc3222@columbia.edu>
+Date:   Mon Apr 5 16:41:29 2021 -0700
+
+    array semant done
+
+commit 9a656fb885987dd5e45d238039f1c3a243090bd4
+Author: Frances Cao <frances.te.cao@gmail.com>
+Date:   Sun Apr 4 18:30:39 2021 -0400
+
+    add upper and lower functions for string
+
+commit 603a2ee85c25ddfda666774aa73198cb84f51a4e
+Author: Frances Cao <frances.te.cao@gmail.com>
+Date:   Sun Apr 4 16:59:24 2021 -0400
+
+    add reverse
+
+commit 1a291fe310ba120ab6e1fcc8e2bf9b3634431c47
+Merge: 543d4c3 805c414
+Author: Mateo Maturana <48253525+maturanamateo@users.noreply.github.com>
+Date:   Sun Apr 4 14:09:19 2021 -0400
+
+    Merge pull request #1 from FranCao/arrays
+    
+    Arrays
+
+commit 805c41456bc7f5b812eaacdc6676ac889b56277f
+Author: Mateo Maturana <mateomaturana@yahoo.com>
+Date:   Sun Apr 4 13:24:32 2021 -0400
+
+    minor changes
+
+commit ab788cc135fdbee3dd5e5e9fc045aa50f964265d
+Author: Mateo Maturana <mateomaturana@yahoo.com>
+Date:   Sat Mar 27 17:55:21 2021 -0400
+
+    finished sast
+
+commit 622ab5357df0a5c7c3b7c6a11879c97afaf5d7d4
+Author: Mateo Maturana <mateomaturana@yahoo.com>
+Date:   Sat Mar 27 13:41:35 2021 -0400
+
+    improvements to pretty printing, mandating int for arr access, not expr
+
+commit c8d647564132f3141fe93f7eb995668b81591daf
+Author: Mateo Maturana <mateomaturana@yahoo.com>
+Date:   Sat Mar 27 13:24:45 2021 -0400
+
+    arrays complete in ast, parser, scanner
+
+commit 093fe067fc1e1681f96f30f9c6a60048f9fddb9d
+Author: Mateo Maturana <mateomaturana@yahoo.com>
+Date:   Fri Mar 26 06:29:23 2021 -0400
+
+    arrays partially implemented
+
+commit f223498628771f72baeac1f920b47a3df37128a5
+Author: Mateo Maturana <mateomaturana@yahoo.com>
+Date:   Fri Mar 26 06:03:05 2021 -0400
+
+    ast, parser, scnaner for array prelim
+
+commit 543d4c3e4abbd968aebf46b82990e2604b9a5133
+Author: HongfeiChenCU <hc3222@columbia.edu>
+Date:   Wed Mar 24 21:10:46 2021 -0700
+
+    CLASS parser, sanner, ast finished
+
+commit e82ab35a20f1ea9f2f53bfcfb89fc09fda30e8c2
+Author: Frances Cao <frances.te.cao@gmail.com>
+Date:   Mon Mar 22 21:43:40 2021 -0400
+
+    add single line comments, edit test cases, replace float with double
+
+commit fde4100ebc3b2cd081c2bd415ebacb681915744d
+Author: HongfeiChenCU <hc3222@columbia.edu>
+Date:   Sun Mar 21 20:47:57 2021 -0700
+
+    renamed all files for javalite
+
+commit cd9a779b7d1be4d0d82f0d2a36319ac9a073aa86
+Author: Frances Cao <frances.te.cao@gmail.com>
+Date:   Sun Mar 21 14:08:34 2021 -0400
+
+    add microc template, hello-world deliverable
