@@ -147,10 +147,10 @@ let translate (classes, functions) =
   let to_string : L.llvalue =
       L.declare_function "to_string" to_string_t the_module in
 
-  let arraylen_t : L.lltype =
+  (* let arraylen_t : L.lltype =
       L.function_type i32_t [| L.pointer_type i32_t |] in
   let arraylen_func : L.llvalue =
-      L.declare_function "length" arraylen_t the_module in
+      L.declare_function "length" arraylen_t the_module in *)
 
   (* Define each function (arguments and return type) so we can 
      call it even before we've created its body *)
@@ -448,8 +448,8 @@ let translate (classes, functions) =
         let v_e = L.build_bitcast p_e (string_t) "cast" builder in
         L.build_call to_string [| (v_e) |] "to_string" builder
 
-      | SCall ("length", [e]) ->
-      L.build_call arraylen_func [| (expr builder e) |] "length" builder
+      (* | SCall ("length", [e]) ->
+      L.build_call arraylen_func [| (expr builder e) |] "length" builder *)
 
       | SCall (f, args) ->
          let (fdef, fdecl) = 
