@@ -388,7 +388,7 @@ let translate (classes, functions) =
       )
 
       (* object Null equality *)
-      | SBinop((A.Object(c),_ ) as e1, op, _) -> 
+      | SBinop((A.Object(_),_ ) as e1, op, _) -> 
         let obj = expr builder e1 in
         (match op with 
           A.Equal -> L.build_is_null
