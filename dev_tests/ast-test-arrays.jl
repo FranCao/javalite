@@ -1,8 +1,10 @@
 
 //string[] strArr2 = ["l", "l", "o"];
 int[] intArr = [1,2,3];
-int i = length(intArr);
-print(i);
+//int[] intArr2 = intArr;
+int e = intArr[0];
+//int i = length(intArr);
+//print(e);
 
 
 /*string[] strArr1;
