@@ -1,3 +1,9 @@
+commit 87a730f264bdf03a968237282f3d6367535e2843
+Author: Mateo Maturana <mateomaturana@yahoo.com>
+Date:   Sat Apr 24 12:20:58 2021 -0400
+
+    changes to test file names, added the git log
+
 commit a7ff0c4284d99c82c901d0240714fbd7d4ce546d
 Author: Mateo Maturana <mateomaturana@yahoo.com>
 Date:   Sat Apr 24 11:25:40 2021 -0400
