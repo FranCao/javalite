@@ -4,5 +4,5 @@ void foo(int a, bool b)
 
 
 foo(42, true);
-foo(42, 42); /* Fail: int, not bool */
+foo(42); /* Wrong number of arguments */
 
