@@ -1,5 +1,3 @@
-int main() {
-    int a = 1;
-    print(a);
-    return 0;
-}
+int a = 1;
+int b = 2;
+print(a == b);
