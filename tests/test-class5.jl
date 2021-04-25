@@ -28,7 +28,6 @@ void updateDepartment(class Person p, int len) {
     }
 }
 
-
 class Course cs4115 = Course("PLT", "COMS");
 class Course m4042 = Course("Algebra", "MATH");
 class Course cs6111 = Course("Database", "COMS");
