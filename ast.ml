@@ -80,7 +80,7 @@ let rec string_of_typ = function
   | String -> "string"
   | Any -> "any"
   | Null -> "null"
-  | Arr(t, l) -> string_of_typ t ^ "[" ^ string_of_int l ^ "]"
+  | Arr(t, _) -> string_of_typ t ^ "[]"
   | Object(s) -> "class " ^ s
 
 let rec string_of_expr = function

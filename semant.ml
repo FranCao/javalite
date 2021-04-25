@@ -210,6 +210,12 @@ let check (statements, classes, functions) =
     with Not_found -> raise (Failure ("unrecognized function " ^ s))
   in
 
+  let rec check_arr (arrtyp, lv) =
+    (match arrtyp with
+      Arr(ty,_) ->  check_arr (ty, lv+1)
+    | _ -> (arrtyp, lv))
+  in
+
   let _ = find_func "main" in (* Ensure "main" is defined *)
 
   let check_function func =
@@ -224,12 +230,15 @@ let check (statements, classes, functions) =
         if lvaluet = rvaluet then lvaluet else
           (match lvaluet with
             Object(_) -> if rvaluet = Null then lvaluet else raise (Failure err)
-          | Arr(t,_) -> (match rvaluet with 
+          | Arr _ -> (match rvaluet with 
                           (* Arr(t_r, _) -> if t = t_r then rvaluet else raise (Failure err) *)
-                          Arr(t_r, _) -> if t = t_r then rvaluet else
+                          (* Arr(t_r, _) -> if t = t_r then rvaluet else
                             (match t_r with
                               Arr _ -> rvaluet
-                            | _ -> raise (Failure err))
+                            | _ -> raise (Failure err)) *)
+                          Arr _ -> let r_arr = check_arr (rvaluet, 0) in
+                                    let l_arr = check_arr (lvaluet, 0) in
+                                      if r_arr = l_arr then rvaluet else raise (Failure err)
                         | _ -> raise (Failure err))
           | _ -> raise (Failure err))
     in
