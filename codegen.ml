@@ -185,42 +185,6 @@ let translate (classes, functions) =
       | _         -> raise (Failure "Invalid type")
     in
 
-    (* let int_format_arrstart = L.build_global_stringptr "[%d" "fmt" builder
-    and float_format_arrstart = L.build_global_stringptr "[%g" "fmt" builder
-    and string_format_arrstart = L.build_global_stringptr "[%s" "fmt" builder
-    in
-
-    let int_format_arr = L.build_global_stringptr ", %d" "fmt" builder
-    and float_format_arr = L.build_global_stringptr ", %g" "fmt" builder
-    and string_format_arr = L.build_global_stringptr ", %s" "fmt" builder
-    in
-
-    let int_format_arrend = L.build_global_stringptr ", %d]\n" "fmt" builder
-    and float_format_arrend = L.build_global_stringptr ", %g]\n" "fmt" builder
-    and string_format_arrend = L.build_global_stringptr ", %s]\n" "fmt" builder
-    in
-
-    let format_arr_print typ idx len =
-      if idx == 0 then match typ with
-        A.Int     -> int_format_arrstart
-      | A.Bool    -> int_format_arrstart
-      | A.Double  -> float_format_arrstart
-      | A.String  -> string_format_arrstart
-      | _         -> raise (Failure "Invalid array type")
-      else if idx == len - 1 then match typ with
-        A.Int     -> int_format_arrend
-      | A.Bool    -> int_format_arrend
-      | A.Double  -> float_format_arrend
-      | A.String  -> string_format_arrend
-      | _         -> raise (Failure "Invalid array type")
-      else match typ with
-        A.Int     -> int_format_arr
-      | A.Bool    -> int_format_arr
-      | A.Double  -> float_format_arr
-      | A.String  -> string_format_arr
-      | _         -> raise (Failure "Invalid array type")
-    in *)
-
     (* Construct a hash table for function formals and locals
        add all the formals first *)
     let tbl = StringHash.create 10 in
@@ -474,17 +438,6 @@ let translate (classes, functions) =
         (match ty with
           A.Arr(_,l) -> L.const_int i32_t l
         | _ -> raise (Failure "function length cannot be called on non array type"))
-
-      (* | SCall ("printArr", [e]) ->
-        let (ty, e_x) = e in
-        let arr_typ = find_type e_x in
-        (match ty with
-            A.Arr(a,l) -> let len = l in
-                          (for idx = 0 to len - 1 do
-                            let elt = (ty, SArrayAccess(v, idx)) in 
-                            (L.build_call printf_func [| (format_arr_print arr_typ idx len builder) ; (expr builder elt) |] "printf" builder)
-                          done)
-          | _ -> raise (Failure "Can only print an array type with this function")) *)
 
       | SCall (f, args) ->
          let (fdef, fdecl) = 
