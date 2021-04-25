@@ -73,9 +73,9 @@ let check (statements, classes, functions) =
     let cd = find_class cname in
     let add_field m (t,n) = StringMap.add n (t,n) m in
     let f_names = List.fold_left add_field StringMap.empty cd.fields in
-    try StringMap.find field f_names
-    with Not_found -> 
-      raise (Failure ("unrecognized field " ^ field ^ " in class " ^ cname))
+  try StringMap.find field f_names
+  with Not_found -> 
+    raise (Failure ("unrecognized field " ^ field ^ " in class " ^ cname))
   in
 
   (**** Check functions ****)
@@ -150,7 +150,7 @@ let check (statements, classes, functions) =
    let built_in_decls =
     StringMap.add "length" {
       typ = Int;
-      fname = "len";
+      fname = "length";
       formals = [(Any, "arr")];
       locals = [];
       body = [] } built_in_decls
@@ -225,7 +225,11 @@ let check (statements, classes, functions) =
           (match lvaluet with
             Object(_) -> if rvaluet = Null then lvaluet else raise (Failure err)
           | Arr(t,_) -> (match rvaluet with 
-                          Arr(t_r, _) -> if t = t_r then rvaluet else raise (Failure err)
+                          (* Arr(t_r, _) -> if t = t_r then rvaluet else raise (Failure err) *)
+                          Arr(t_r, _) -> if t = t_r then rvaluet else
+                            (match t_r with
+                              Arr _ -> rvaluet
+                            | _ -> raise (Failure err))
                         | _ -> raise (Failure err))
           | _ -> raise (Failure err))
     in
@@ -273,6 +277,10 @@ let check (statements, classes, functions) =
           let err = "illegal assignment " ^ string_of_typ lt ^ " = " ^ 
             string_of_typ rt ^ " in " ^ string_of_expr ex in
           let (ty, e') = check_assign_null e lt err
+          (* update array size *)
+          in let _ = (match ty with 
+            Arr _ -> StringHash.replace tbl var ty
+          | _ -> ignore 1)
           in (ty, SAssign(var, (ty, e')))
 
       | DecAssn(ty, var, e) as decassgn ->
@@ -281,6 +289,10 @@ let check (statements, classes, functions) =
         let err = "illegal assignment " ^ string_of_typ ty ^ " = " ^ 
             string_of_typ rt ^ " in " ^ string_of_expr decassgn in
         let (ty, e') = check_assign_null e ty err
+        (* update array size *)
+        in let _ = (match ty with 
+          Arr _ -> StringHash.replace tbl var ty
+        | _ -> ignore 1)
         in (ty, SDecAssn(ty, var, (ty, e')))
 
       | Unop(op, e) as ex -> 
@@ -319,14 +331,15 @@ let check (statements, classes, functions) =
           if List.length args != param_length then
             raise (Failure ("expecting " ^ string_of_int param_length ^ 
                             " arguments in " ^ string_of_expr call))
-          (* Ignore types for array functions *)
-
-
-          else let check_call (ft, _) e = 
+          else let check_call (ft, n) e = 
             let (et, _) = expr e in 
             let err = "illegal argument found " ^ string_of_typ et ^
               " expected " ^ string_of_typ ft ^ " in " ^ string_of_expr e
-            in (check_assign_null e ft err)
+            in let (ty,e') = check_assign_null e ft err
+              (* update array size *)
+              in let _ = (match ty with 
+                Arr _ -> StringHash.replace formal_tbl n ty
+              | _ -> ignore 1) in (ty,e')
           in 
           let args' = List.map2 check_call fd.formals args
           in (fd.typ, SCall(fname, args'))
@@ -360,7 +373,11 @@ let check (statements, classes, functions) =
           let (fst_ty, _) = expr fst_e in
           let (arr_ty_len, arr_ty_e) = List.fold_left (fun (t, l) e -> 
             let (et, e') = expr e in
-            if et = fst_ty then (t+1, (et, e')::l) else (t, (et, e')::l)) (0,[]) el
+            let is_arr = (
+              match et with
+                Arr _ -> true
+              | _ -> false) in
+            if ((et = fst_ty) || is_arr) then (t+1, (et, e')::l) else (t, (et, e')::l)) (0,[]) el
           in if arr_ty_len != List.length el 
             then raise (Failure ty_inconsistent_err)
           (* determine arr type *)
@@ -390,6 +407,10 @@ let check (statements, classes, functions) =
         let err = "illegal assignment " ^ string_of_typ e_ty ^ " = " ^ 
             string_of_typ rt ^ " in " ^ string_of_expr arrassign in
         let (ty, e2') = check_assign_null e2 e_ty err
+        (* update array size *)
+        (* in let _ = (match ty with 
+          Arr _ -> StringHash.replace tbl v ty
+        | _ -> ignore 1) *)
         in (ty, SArrAssign(v, (t,e1'), (ty,e2')))
       )
     in

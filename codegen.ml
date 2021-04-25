@@ -447,9 +447,13 @@ let translate (classes, functions) =
         ignore(L.build_store e' p_e builder);
         let v_e = L.build_bitcast p_e (string_t) "cast" builder in
         L.build_call to_string [| (v_e) |] "to_string" builder
-
-      (* | SCall ("length", [e]) ->
-      L.build_call arraylen_func [| (expr builder e) |] "length" builder *)
+      
+      (* array length function *)
+      | SCall ("length", [e]) ->
+        let (ty,_) = e in
+        (match ty with
+          A.Arr(_,l) -> L.const_int i32_t l
+        | _ -> raise (Failure "function length cannot be called on non array type"))
 
       | SCall (f, args) ->
          let (fdef, fdecl) = 

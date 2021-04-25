@@ -1,6 +1,6 @@
 
 //string[] strArr2 = ["l", "l", "o"];
-int[] intArr = [1,2,3];
+int[] intArr = [1,2,3,4];
 int i = length(intArr);
 print(i);
 

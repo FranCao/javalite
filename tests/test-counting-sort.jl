@@ -4,9 +4,9 @@ int[] countingSortArray = [0,0,0,0,0,0,0,0,0,0
 		        ,0,0,0,0,0,0,0,0,0,0
 		        ,0,0,0,0,0,0,0,0,0,0
 		        ];
-int countingSortArrayLength = 50;
+int countingSortArrayLength = length(countingSortArray);
 int[] sortingArr = [32,17,31,5,26,13,47,31,9,3,24,41,43,12,11];
-int length = 15;
+int length = length(sortingArr);
 int i = 0;
 int j = 0;
    

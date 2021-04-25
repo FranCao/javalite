@@ -3,7 +3,7 @@ int i = 0;
 int j = 0;
 int tmpForSwap = 0;
     
-int length = 15;
+int length = length(sortingArr);
     
 for (i = 0 ; i < length-1 ; i = i + 1) {
 for (j =0; j< length-i-1;j = j + 1){
