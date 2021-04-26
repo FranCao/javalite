@@ -92,7 +92,7 @@ let translate (classes, functions) =
   (* Return the LLVM type for a MicroC type *)
   let rec ltype_of_typ = function
       A.Int    -> i32_t
-    | A.Bool   -> i1_t
+    | A.Bool   -> string_t
     | A.Double -> double_t
     | A.Void   -> void_t
     | A.String -> string_t
@@ -179,7 +179,7 @@ let translate (classes, functions) =
     (* Find the type of the input *)
     let find_str_typ = function
         A.Int     -> int_format_str
-      | A.Bool    -> int_format_str 
+      | A.Bool    -> str_format_str 
       | A.Double  -> float_format_str 
       | A.String  -> str_format_str 
       | _         -> raise (Failure "Invalid type")
@@ -228,11 +228,11 @@ let translate (classes, functions) =
 
     let rec find_type = function
       | SIntLit _     -> A.Int
-      | SBoolLit _     -> A.Int
+      | SBoolLit _     -> A.String
       | SDoubleLit _   -> A.Double
       | SStrLit _      -> A.String 
       | SBinop((_, e_x), op, _) -> if (is_arith op) = true then find_type e_x
-                                    else A.Int
+                                    else A.String
       | SUnop(_, (_, e_x)) -> find_type e_x
       | SNoexpr        -> raise (Failure "Unmatched NoExpr")
       | SNullPtr _ -> A.String 
@@ -258,7 +258,9 @@ let translate (classes, functions) =
     (* Construct code for an expression; return its value *)
     let rec expr builder ((_, e) : sexpr) = match e with
 	      SIntLit i  -> L.const_int i32_t i
-      | SBoolLit b  -> L.const_int i1_t (if b then 1 else 0)
+      (*| SBoolLit b  -> L.const_int i1_t (if b then 1 else 0) *)
+      | SBoolLit b -> if b then L.build_global_stringptr "true" "str" builder
+      else L.build_global_stringptr "false" "str" builder
       | SDoubleLit l -> L.const_float_of_string double_t l
       | SStrLit s -> L.build_global_stringptr s "str" builder
       | SArrayLit arr   -> 
