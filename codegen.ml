@@ -191,7 +191,7 @@ let translate (classes, functions) =
     let formal_tbl = StringHash.create 5 in
       let add_formal tbl (t, n) p = 
         L.set_value_name n p;
-        let local = L.build_malloc (ltype_of_typ t) n builder in
+        let local = L.build_alloca (ltype_of_typ t) n builder in
             ignore (L.build_store p local builder);
         StringHash.add tbl n local; tbl in
       let _ = List.fold_left2 add_formal formal_tbl fdecl.sformals
@@ -263,11 +263,13 @@ let translate (classes, functions) =
       | SStrLit s -> L.build_global_stringptr s "str" builder
       | SArrayLit arr   -> 
         (* arr: sexpr list = typ * sx list *)
+        (* let len = L.const_int i32_t ((List.length arr) + 1) in *)
         let len = L.const_int i32_t (List.length arr) in
+        let size = L.const_int i32_t ((List.length arr) + 1) in
         let (fst_t, _) = List.hd arr in 
         let ty = ltype_of_typ (A.Arr(fst_t, (List.length arr))) in
         (* allocate memory for array *)
-        let arr_alloca = L.build_array_malloc ty len "arr" builder in
+        let arr_alloca = L.build_array_alloca ty size "arr" builder in
         (* bitcast *)
         let arr_ptr = L.build_pointercast arr_alloca ty "arrptr" builder in 
         (* store all elements *)
@@ -277,6 +279,9 @@ let translate (classes, functions) =
             let elt_ptr = L.build_gep arr_ptr [| pos |] "arrelt" builder in
           ignore(L.build_store elt elt_ptr builder)
         in List.iteri store_elt elts;
+        let elt_ptr = L.build_gep arr_ptr [| len |] "arrlast" builder in
+        let null_elt = L.const_null (L.element_type ty) in
+        ignore(L.build_store null_elt elt_ptr builder);
         arr_ptr
       | SConstruct (cname, args) ->
         (* let obj_ty = ltype_of_typ (A.Object(cname)) in  *)
@@ -328,7 +333,7 @@ let translate (classes, functions) =
                           ignore(L.build_store e' (lookup s) builder); e'
       | SDecAssn (t, s, e) -> 
         let e' = expr builder e in
-        let var = L.build_malloc (ltype_of_typ t) s builder in
+        let var = L.build_alloca (ltype_of_typ t) s builder in
             ignore (L.build_store e' var builder);
         StringHash.add tbl s var; e'
       | SBinop ((A.Double,_ ) as e1, op, e2) ->

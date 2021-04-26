@@ -231,11 +231,6 @@ let check (statements, classes, functions) =
           (match lvaluet with
             Object(_) -> if rvaluet = Null then lvaluet else raise (Failure err)
           | Arr _ -> (match rvaluet with 
-                          (* Arr(t_r, _) -> if t = t_r then rvaluet else raise (Failure err) *)
-                          (* Arr(t_r, _) -> if t = t_r then rvaluet else
-                            (match t_r with
-                              Arr _ -> rvaluet
-                            | _ -> raise (Failure err)) *)
                           Arr _ -> let r_arr = check_arr (rvaluet, 0) in
                                     let l_arr = check_arr (lvaluet, 0) in
                                       if r_arr = l_arr then rvaluet else raise (Failure err)
@@ -416,10 +411,6 @@ let check (statements, classes, functions) =
         let err = "illegal assignment " ^ string_of_typ e_ty ^ " = " ^ 
             string_of_typ rt ^ " in " ^ string_of_expr arrassign in
         let (ty, e2') = check_assign_null e2 e_ty err
-        (* update array size *)
-        (* in let _ = (match ty with 
-          Arr _ -> StringHash.replace tbl v ty
-        | _ -> ignore 1) *)
         in (ty, SArrAssign(v, (t,e1'), (ty,e2')))
       )
     in
@@ -441,10 +432,16 @@ let check (statements, classes, functions) =
       | Return e -> let (t, e') = expr e in
         if "main" = func.fname then
         raise (Failure("expected no return statement in outer body")) else
+        let err = "return gives " ^ string_of_typ t ^ " expected " ^
+          string_of_typ func.typ ^ " in " ^ string_of_expr e in
         if t = func.typ then SReturn (t, e') else 
-        raise (
-	  Failure ("return gives " ^ string_of_typ t ^ " expected " ^
-		   string_of_typ func.typ ^ " in " ^ string_of_expr e))
+          (match t with
+            Arr _ -> (match func.typ with 
+                        Arr _ -> let r_arr = check_arr (func.typ, 0) in
+                                  let l_arr = check_arr (t, 0) in
+                                    if r_arr = l_arr then SReturn (func.typ, e') else raise (Failure err)
+                      | _ -> raise (Failure err))
+          | _ -> raise (Failure err))
 	    
 	    (* A block is correct if each statement is correct and nothing
 	       follows any Return statement.  Nested blocks are flattened. *)

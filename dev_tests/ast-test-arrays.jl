@@ -1,9 +1,48 @@
+//int[] intArr = [1];
+//print(intArr[1]);
 
-//string[] strArr2 = ["l", "l", "o"];
+//int[] nums = [1,2,3];
+//int i = nums[2];
+
+//string[] arr = ["hello"];
+//int[] arr = [1];
+//int i = arr[1];
+//print(arr[1]);
+//int i = length(arr);
+//print(i);
+
+int[] createArr() {
+    int[] nums = [1,2,3];
+    return nums;
+}
+int[] ns = [3,4,5];
+print(ns[1]);
+ns = createArr();
+print(ns[1]);
+
+
+/*string[] strArr1 = ["te", "st"];
+string[] strArr2 = ["ar", "ry", "3"];
+print(strArr2[0]);*/
+/*print(strArr2[1]);
+string[][] str2dArr = [strArr1, strArr2];
+strArr2 = str2dArr[0];
+print(strArr2[1]);
+int[][] int2dArr = [[1,2,3],[1,2]];
+int[] intArr = int2dArr[1];
+print(intArr[0]);
 int[][] intArr = [[1,2,3],[1,2]];
-/*int i = length(intArr);
+int i = length(intArr);
 print(i);
-int s = length(strArr2);
+intArr = [[3,5,6,7],[1,2],[5,7,9]];
+i = length(intArr);
+print(i);
+intArr[0]=[1,2];
+int[] arr = intArr[0];
+i = arr[1];
+print(i);*/
+
+/*int s = length(strArr2);
 print(s);
 printArr(intArr);*/
 
