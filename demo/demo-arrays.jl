@@ -1,12 +1,5 @@
-int[] row1A = [2, 5];
-int[] row2A = [1, 2];
-int[] row1B = [4, 5];
-int[] row2B = [2, 3];
-// [[2, 3], [1, 2]];
-
-//int[][] c = [[2, 5], [1, 2]];
-int[][] a = [row1A, row2A];
-int[][] b = [row1B, row2B];
+int[][] a = [[2, 5], [1, 2]];
+int[][] b = [[4, 5], [2, 3]];
 deterMult(a, b);
 
 // assuming size of 2s
