@@ -1,3 +1,9 @@
 * Invoke docker
 
   docker run --rm -it -v `pwd`:/home/javalite -w=/home/javalite columbiasedwards/plt
+
+* Compile JavaLite
+  make all
+
+* Run a program
+  ./BuildAndRun.sh <file.jl>
