@@ -1,9 +1,13 @@
-* Invoke docker
+1. Invoke docker
+docker run --rm -it -v `pwd`:/home/javalite -w=/home/javalite columbiasedwards/plt
 
-  docker run --rm -it -v `pwd`:/home/javalite -w=/home/javalite columbiasedwards/plt
+2.Compile JavaLite
+make all
 
-* Compile JavaLite
-  make all
+3.Run a program
+./BuildAndRun.sh <file.jl>
+  
+JavaLite
+JavaLite is a multi-paradigm language that allows the user to freely use both functional and object-oriented paradigms. While Java is one of the most popular programming languages for beginners, it can be challenging for new programmers to get familiar with its excessive syntax and strict object-oriented programming rules. In contrast, JavaLite has simplified syntax compared to Java. Further, JavaLite supports more built-in functionality for non-primitive data types, including String and Array. These built-in methods are inspired by Python and the goal is to provide a more intuitive way of String/Array manipulation.
 
-* Run a program
-  ./BuildAndRun.sh <file.jl>
+This repo will no longer be updated.
